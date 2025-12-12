@@ -1,0 +1,213 @@
+"use client"
+import React from 'react'
+import Link from 'next/link'
+import Navigation from '@/components/Navigation'
+import Footer from '@/components/Footer'
+import IconifyIcon from '@/components/wrappers/IconifyIcon'
+import { useCartContext } from '@/context/useCartContext'
+import { formatPrice } from '@/data/products'
+
+/**
+ * Page Panier
+ */
+const CartPage = () => {
+    const { cartItems, removeFromCart, updateQuantity, clearCart, getTotalPrice } = useCartContext()
+    const totalPrice = getTotalPrice()
+
+    // Obtenir la quantité minimale d'un produit
+    const getMinQuantity = (product: any): number => {
+        return product.minQuantity || 1
+    }
+
+    if (cartItems.length === 0) {
+        return (
+            <>
+                <Navigation />
+                <section className="pt-24 pb-20 min-h-screen bg-white">
+                    <div className="container">
+                        <div className="text-center py-12">
+                            <IconifyIcon 
+                                icon="lucide:shopping-cart" 
+                                className="h-24 w-24 text-gray-300 mx-auto mb-6"
+                            />
+                            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+                                Votre panier est vide
+                            </h1>
+                            <p className="text-gray-600 mb-8">
+                                Ajoutez des produits à votre panier pour commencer vos achats.
+                            </p>
+                            <Link
+                                href="/products"
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-[#ff6b35] hover:bg-[#ff6b35] text-white font-semibold rounded-lg transition-colors"
+                            >
+                                <IconifyIcon icon="lucide:arrow-left" className="h-5 w-5" />
+                                Voir les produits
+                            </Link>
+                        </div>
+                    </div>
+                </section>
+                <Footer />
+            </>
+        )
+    }
+
+    return (
+        <>
+            <Navigation />
+            <section className="pt-24 pb-20 min-h-screen bg-white">
+                <div className="container">
+                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8">
+                        Mon panier ({cartItems.length} {cartItems.length > 1 ? 'articles' : 'article'})
+                    </h1>
+
+                    <div className="grid lg:grid-cols-3 gap-8">
+                        {/* Liste des articles */}
+                        <div className="lg:col-span-2 space-y-4">
+                            {cartItems.map((item) => {
+                                const minQuantity = getMinQuantity(item.product)
+                                const isMinQuantity = item.quantity === minQuantity
+
+                                return (
+                                    <div
+                                        key={item.product.id}
+                                        className="bg-white rounded-lg border border-gray-200 p-6 flex gap-6"
+                                    >
+                                        {/* Image */}
+                                        <Link href={`/products/${item.product.id}`} className="flex-shrink-0">
+                                            <div className="relative w-32 h-32 bg-gray-50 rounded-lg overflow-hidden">
+                                                {item.product.discount > 0 && (
+                                                    <div className="absolute top-2 left-2 z-10 bg-[#ff6b35] text-white text-xs font-bold px-2 py-1 rounded">
+                                                        -{item.product.discount}%
+                                                    </div>
+                                                )}
+                                                <img
+                                                    src={item.product.image}
+                                                    alt={item.product.name}
+                                                    className="w-full h-full object-contain p-2"
+                                                />
+                                            </div>
+                                        </Link>
+
+                                        {/* Informations */}
+                                        <div className="flex-1 flex flex-col justify-between">
+                                            <div>
+                                                <Link href={`/products/${item.product.id}`}>
+                                                    <h3 className="text-lg font-semibold text-gray-900 mb-2 hover:text-[#ff6b35] transition-colors">
+                                                        {item.product.name}
+                                                    </h3>
+                                                </Link>
+                                                <p className="text-sm text-gray-600 mb-2">
+                                                    {item.product.brand} • {item.product.category}
+                                                </p>
+                                                <div className="text-xl font-bold text-gray-900">
+                                                    {formatPrice(item.product.currentPrice)}
+                                                </div>
+                                                {minQuantity > 1 && (
+                                                    <p className="text-xs text-[#ff6b35] font-medium mt-1">
+                                                        Quantité minimale : {minQuantity}
+                                                    </p>
+                                                )}
+                                            </div>
+
+                                            {/* Contrôles de quantité */}
+                                            <div className="flex items-center justify-between mt-4">
+                                                <div className="flex items-center gap-3">
+                                                    <button
+                                                        onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                                                        disabled={isMinQuantity}
+                                                        className={`w-8 h-8 flex items-center justify-center border border-gray-300 rounded transition-colors ${
+                                                            isMinQuantity 
+                                                                ? 'opacity-50 cursor-not-allowed bg-gray-100' 
+                                                                : 'hover:bg-gray-100'
+                                                        }`}
+                                                        title={isMinQuantity ? `Quantité minimale : ${minQuantity}` : 'Diminuer'}
+                                                    >
+                                                        <IconifyIcon icon="lucide:minus" className="h-4 w-4" />
+                                                    </button>
+                                                    <span className="text-lg font-semibold text-gray-900 min-w-[3rem] text-center">
+                                                        {item.quantity}
+                                                    </span>
+                                                    <button
+                                                        onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                                                        className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100 transition-colors"
+                                                        title="Augmenter"
+                                                    >
+                                                        <IconifyIcon icon="lucide:plus" className="h-4 w-4" />
+                                                    </button>
+                                                </div>
+                                                <button
+                                                    onClick={() => removeFromCart(item.product.id)}
+                                                    className="text-red-600 hover:text-red-700 transition-colors flex items-center gap-2"
+                                                >
+                                                    <IconifyIcon icon="lucide:trash-2" className="h-5 w-5" />
+                                                    <span className="text-sm font-medium">Supprimer</span>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {/* Prix total pour cet article */}
+                                        <div className="flex flex-col items-end justify-between">
+                                            <div className="text-2xl font-bold text-gray-900">
+                                                {formatPrice(item.product.currentPrice * item.quantity)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            })}
+
+                            {/* Bouton vider le panier */}
+                            <div className="flex justify-end">
+                                <button
+                                    onClick={clearCart}
+                                    className="text-red-600 hover:text-red-700 transition-colors flex items-center gap-2 font-medium"
+                                >
+                                    <IconifyIcon icon="lucide:trash-2" className="h-5 w-5" />
+                                    Vider le panier
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Résumé de commande */}
+                        <div className="lg:col-span-1">
+                            <div className="bg-white rounded-lg border border-gray-200 p-6 sticky top-24">
+                                <h2 className="text-xl font-bold text-gray-900 mb-6">
+                                    Résumé de commande
+                                </h2>
+
+                                <div className="space-y-4 mb-6">
+                                    <div className="flex justify-between text-gray-600">
+                                        <span>Sous-total</span>
+                                        <span className="font-semibold">{formatPrice(totalPrice)}</span>
+                                    </div>
+                                    <div className="flex justify-between text-gray-600">
+                                        <span>Livraison</span>
+                                        <span className="font-semibold">Gratuite</span>
+                                    </div>
+                                    <div className="border-t border-gray-200 pt-4 flex justify-between text-lg font-bold text-gray-900">
+                                        <span>Total</span>
+                                        <span>{formatPrice(totalPrice)}</span>
+                                    </div>
+                                </div>
+
+                                <button className="w-full bg-[#ff6b35] hover:bg-[#ff6b35] text-white py-4 px-6 rounded-lg transition-colors font-semibold text-lg flex items-center justify-center gap-2 mb-4">
+                                    <IconifyIcon icon="lucide:credit-card" className="h-5 w-5" />
+                                    Passer la commande
+                                </button>
+
+                                <Link
+                                    href="/products"
+                                    className="block text-center text-gray-600 hover:text-[#ff6b35] transition-colors font-medium"
+                                >
+                                    Continuer les achats
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <Footer />
+        </>
+    )
+}
+
+export default CartPage
