@@ -9,6 +9,18 @@ import { productsData, formatPrice, ProductData } from '@/data/products'
 import { useCartContext } from '@/context/useCartContext'
 
 /**
+ * Génère un slug à partir du nom de la marque
+ */
+const generateBrandSlug = (name: string): string => {
+    return name
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // Supprime les accents
+        .replace(/[^a-z0-9]+/g, '-') // Remplace les caractères spéciaux par des tirets
+        .replace(/^-+|-+$/g, '') // Supprime les tirets en début et fin
+}
+
+/**
  * Page de détails d'un produit
  */
 const ProductDetailPage = () => {
@@ -65,7 +77,7 @@ const ProductDetailPage = () => {
             <section className="pt-24 pb-20 min-h-screen bg-white">
                 <div className="container">
                     {/* Breadcrumb */}
-                    <nav className="mb-8 text-sm">
+                    <nav className="pt-8 mb-8 text-sm">
                         <ol className="flex items-center gap-2 text-gray-600">
                             <li>
                                 <Link href="/" className="hover:text-[#ff6b35] transition-colors">
@@ -105,17 +117,16 @@ const ProductDetailPage = () => {
                         <div className="flex flex-col">
                             {/* Nom et marque */}
                             <div className="mb-4">
-                                <span className="text-sm text-[#ff6b35] font-semibold uppercase tracking-wide">
+                                <Link
+                                    href={`/brands/${generateBrandSlug(product.brand)}`}
+                                    className="text-sm text-[#ff6b35] font-semibold uppercase tracking-wide hover:underline transition-colors inline-block"
+                                >
                                     {product.brand}
-                                </span>
+                                </Link>
                                 <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-3">
                                     {product.name}
                                 </h1>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-gray-600 text-sm">
-                                        ({product.rating.toFixed(1)})
-                                    </span>
-                                </div>
+                                
                             </div>
 
                             {/* Prix */}
@@ -157,7 +168,12 @@ const ProductDetailPage = () => {
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <span className="text-gray-600 font-medium min-w-[120px]">Marque :</span>
-                                    <span className="text-gray-900">{product.brand}</span>
+                                    <Link
+                                        href={`/brands/${generateBrandSlug(product.brand)}`}
+                                        className="text-gray-900 hover:text-[#ff6b35] transition-colors hover:underline"
+                                    >
+                                        {product.brand}
+                                    </Link>
                                 </div>
                                 {product.minQuantity && product.minQuantity > 1 && (
                                     <div className="flex items-center gap-3">
@@ -203,12 +219,12 @@ const ProductDetailPage = () => {
                                         </>
                                     )}
                                 </button>
-                                <button
+                                {/* <button
                                     className="px-6 py-4 border-2 border-gray-300 hover:border-[#ff6b35] text-gray-700 hover:text-[#ff6b35] rounded-lg transition-colors font-semibold flex items-center justify-center gap-2"
                                 >
                                     <IconifyIcon icon="lucide:heart" className="h-5 w-5" />
                                     Favoris
-                                </button>
+                                </button> */}
                             </div>
                         </div>
                     </div>
