@@ -14,6 +14,7 @@ import About from "@/components/About";
 import Contact from "@/components/Contact";
 // import Newsletter from "@/components/Newsletter";
 import Hero from "@/components/Hero";
+import Delivery from "@/components/Delivery";
 
 import "swiper/css";
 
@@ -24,6 +25,7 @@ function page() {
             <Navigation />
             <Hero />
             <Brands />
+            <Delivery />
             <Product />
             {/* <Features /> */}
             {/* <Newsletter /> */}

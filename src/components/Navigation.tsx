@@ -1,5 +1,6 @@
 'use client'
 import logo from "@/assets/images/logo.png";
+import logoElectroShop from "@/assets/images/logo-electro-shop.png";
 import IconifyIcon from "@/components/wrappers/IconifyIcon";
 import useScrollEvent from "@/hooks/useScrollEvent";
 import Gumshoe from 'gumshoejs'
@@ -64,9 +65,29 @@ const Navigation = () => {
                                 width={118}
                                 height={36}
                             /> */}
-                            Logo Shop Electroménager
+                            <Image
+                                src={logoElectroShop}
+                                className="flex"
+                                alt="logo"
+                                width={118}
+                                // height={36}
+                            />
                         </Link>
-                        <div className="lg:hidden flex items-center ms-auto px-2.5">
+                        <div className="lg:hidden flex items-center ms-auto gap-2 px-2.5">
+                            <Link
+                                href="/cart"
+                                className="relative inline-flex items-center justify-center p-2 rounded-md text-white bg-primary hover:bg-primaryDark transition-all duration-500"
+                            >
+                                <IconifyIcon
+                                    icon="lucide:shopping-cart"
+                                    className="h-6 w-6"
+                                />
+                                {totalItems > 0 && (
+                                    <span className="absolute -top-1 -right-1 bg-[#ff6b35] text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                        {totalItems > 99 ? '99+' : totalItems}
+                                    </span>
+                                )}
+                            </Link>
                             <button onClick={toggleMenu}
                                 className="hs-collapse-toggle"
                                 type="button"
@@ -93,7 +114,7 @@ const Navigation = () => {
                                         : 'text-dark lg:text-white [&.active]:!text-primary'
                                 }`}>
                                     <a
-                                        className="nav-link inline-flex items-center text-sm lg:text-base font-medium py-0.5 px-2 capitalize"
+                                        className="nav-link inline-flex items-center text-sm lg:text-base font-medium py-0.5 px-2"
                                         href={isHomePage ? "#home" : "/#home"}
                                     >
                                         Accueil
@@ -105,7 +126,7 @@ const Navigation = () => {
                                         : 'text-dark lg:text-white [&.active]:!text-primary'
                                 }`}>
                                     <a
-                                        className="nav-link inline-flex items-center text-sm lg:text-base font-medium py-0.5 px-2 capitalize"
+                                        className="nav-link inline-flex items-center text-sm lg:text-base font-medium py-0.5 px-2"
                                         href={isHomePage ? "#products" : "/#products"}
                                     >
                                         Les produits
@@ -117,7 +138,7 @@ const Navigation = () => {
                                         : 'text-dark lg:text-white [&.active]:!text-primary'
                                 }`}>
                                     <a
-                                        className="nav-link inline-flex items-center text-sm lg:text-base font-medium py-0.5 px-2 capitalize"
+                                        className="nav-link inline-flex items-center text-sm lg:text-base font-medium py-0.5 px-2"
                                         href={isHomePage ? "#brands" : "/#brands"}
                                     >
                                         Les marques
@@ -129,8 +150,21 @@ const Navigation = () => {
                                         ? 'text-dark [&.active]:text-primary' 
                                         : 'text-dark lg:text-white [&.active]:!text-primary'
                                 }`}>
+                                    <Link
+                                        href="/others"
+                                        className="nav-link inline-flex items-center text-sm lg:text-base font-medium py-0.5 px-2"
+                                    >
+                                        Autres produits
+                                    </Link>
+                                </li>
+                                
+                                <li className={`nav-item mx-1.5 transition-all duration-300 hover:text-primary [&.active]:!text-primary ${
+                                    shouldUseDarkText 
+                                        ? 'text-dark [&.active]:text-primary' 
+                                        : 'text-dark lg:text-white [&.active]:!text-primary'
+                                }`}>
                                     <a
-                                        className="nav-link inline-flex items-center text-sm lg:text-base font-medium py-0.5 px-2 capitalize"
+                                        className="nav-link inline-flex items-center text-sm lg:text-base font-medium py-0.5 px-2"
                                         href={isHomePage ? "#contact" : "/#contact"}
                                     >
                                         Contactez-nous

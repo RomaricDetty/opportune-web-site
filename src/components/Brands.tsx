@@ -234,7 +234,7 @@ const Brands = () => {
                         Les marques
                     </span>
                     <h2 className="text-3xl md:text-4xl/tight font-semibold text-black mt-4">
-                        Découvrez nos marques partenaires pour tous vos besoins en électroménager
+                        Découvrez nos marques pour tous vos besoins en électroménager
                     </h2>
                     <p className="text-base font-medium mt-4 text-muted">
                         Cliquez sur une marque pour en savoir plus

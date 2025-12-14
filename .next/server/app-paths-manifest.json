@@ -1,6 +1,7 @@
 {
-  "/cart/page": "app/cart/page.js",
-  "/products/page": "app/products/page.js",
   "/page": "app/page.js",
-  "/products/[id]/page": "app/products/[id]/page.js"
+  "/others/page": "app/others/page.js",
+  "/products/page": "app/products/page.js",
+  "/brands/[name]/page": "app/brands/[name]/page.js",
+  "/others/[id]/page": "app/others/[id]/page.js"
 }

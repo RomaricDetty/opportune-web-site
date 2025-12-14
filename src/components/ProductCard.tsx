@@ -10,12 +10,13 @@ import { useCartContext } from '@/context/useCartContext'
 interface ProductCardProps {
     product: ProductData
     viewMode?: 'grid' | 'list'
+    productType?: 'electromenager' | 'other' // Nouveau prop pour différencier les types
 }
 
 /**
  * Composant ProductCard - Affiche une carte de produit
  */
-const ProductCard = ({ product, viewMode = 'grid' }: ProductCardProps) => {
+const ProductCard = ({ product, viewMode = 'grid', productType = 'electromenager' }: ProductCardProps) => {
     const { addToCart, isInCart } = useCartContext()
     const inCart = isInCart(product.id)
 
@@ -65,10 +66,13 @@ const ProductCard = ({ product, viewMode = 'grid' }: ProductCardProps) => {
         return stars
     }
 
+    // Déterminer le chemin selon le type de produit
+    const productPath = productType === 'other' ? `/others/${product.id}` : `/products/${product.id}`
+
     if (viewMode === 'list') {
         return (
             <div className="flex gap-4 bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
-                <Link href={`/products/${product.id}`} className="flex gap-4 flex-1">
+                <Link href={productPath} className="flex gap-4 flex-1">
                     {/* Image */}
                     <div className="relative w-48 h-48 flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden">
                         {product.discount > 0 && (
@@ -139,7 +143,7 @@ const ProductCard = ({ product, viewMode = 'grid' }: ProductCardProps) => {
     // Mode grille (par défaut)
     return (
         <div className="group relative bg-white rounded-lg border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-lg">
-            <Link href={`/products/${product.id}`} className="block">
+            <Link href={productPath} className="block">
                 {/* Badge de réduction orange */}
                 {product.discount > 0 && (
                     <div className="absolute top-3 left-3 z-10 bg-[#ff6b35] text-white text-xs font-bold px-2 py-1 rounded">
