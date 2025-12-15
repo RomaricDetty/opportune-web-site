@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useMemo, useEffect, useRef } from 'react'
+import React, { useState, useMemo, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
@@ -19,7 +19,7 @@ const PRODUCTS_PER_PAGE = 12
  */
 const ALLOWED_CATEGORIES = {
     'telephones': 'Téléphones',
-    'mobiliers': 'Meubles',
+    'mobiliers': 'Mobiliers',
     'accessoires': 'Accessoires'
 } as const
 
@@ -60,9 +60,9 @@ const isCategoryAllowed = (slug: string | null): boolean => {
 }
 
 /**
- * Page Others - Affiche tous les produits non-électroménagers avec filtres avancés
+ * Composant interne qui utilise useSearchParams
  */
-const OthersPage = () => {
+const OthersPageContent = () => {
     const searchParams = useSearchParams()
     const categorySlug = searchParams.get('category')
     const categoryFromUrl = categorySlug ? slugToCategoryName(categorySlug) : null
@@ -610,6 +610,30 @@ const OthersPage = () => {
                 </>
             )}
 
+            <Footer />
+        </>
+    )
+}
+
+/**
+ * Page Others - Affiche tous les produits non-électroménagers avec filtres avancés
+ */
+const OthersPage = () => {
+    return (
+        <>
+            <Navigation />
+            <Suspense fallback={
+                <section className="pt-24 pb-8 min-h-screen bg-white flex items-center justify-center">
+                    <div className="container">
+                        <div className="text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#ff6b35] mx-auto"></div>
+                            <p className="mt-4 text-gray-600">Chargement...</p>
+                        </div>
+                    </div>
+                </section>
+            }>
+                <OthersPageContent />
+            </Suspense>
             <Footer />
         </>
     )

@@ -1,5 +1,5 @@
 "use client"
-import React from 'react'
+import React, { Suspense } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Navigation from '@/components/Navigation'
@@ -22,9 +22,9 @@ const generateCategorySlug = (categoryName: string): string => {
 }
 
 /**
- * Page de détails d'un produit non-électroménager
+ * Composant interne qui utilise useSearchParams
  */
-const OtherProductDetailPage = () => {
+const OtherProductDetailPageContent = () => {
     const params = useParams()
     const searchParams = useSearchParams()
     const productId = parseInt(params.id as string)
@@ -256,6 +256,30 @@ const OtherProductDetailPage = () => {
                     )}
                 </div>
             </section>
+            <Footer />
+        </>
+    )
+}
+
+/**
+ * Page de détails d'un produit non-électroménager
+ */
+const OtherProductDetailPage = () => {
+    return (
+        <>
+            <Navigation />
+            <Suspense fallback={
+                <section className="pt-24 pb-20 min-h-screen bg-white flex items-center justify-center">
+                    <div className="container">
+                        <div className="text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#ff6b35] mx-auto"></div>
+                            <p className="mt-4 text-gray-600">Chargement...</p>
+                        </div>
+                    </div>
+                </section>
+            }>
+                <OtherProductDetailPageContent />
+            </Suspense>
             <Footer />
         </>
     )
