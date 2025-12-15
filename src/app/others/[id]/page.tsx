@@ -7,7 +7,7 @@ import Footer from '@/components/Footer'
 import IconifyIcon from '@/components/wrappers/IconifyIcon'
 import { ProductData, formatPrice } from '@/data/products'
 import { useCartContext } from '@/context/useCartContext'
-import { otherProductsData } from '../page'
+import { otherProductsData } from '@/data/others'
 
 /**
  * Page de détails d'un produit non-électroménager
