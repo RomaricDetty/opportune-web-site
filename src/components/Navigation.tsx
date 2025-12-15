@@ -6,7 +6,7 @@ import useScrollEvent from "@/hooks/useScrollEvent";
 import Gumshoe from 'gumshoejs'
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useCartContext } from "@/context/useCartContext";
 
@@ -17,6 +17,8 @@ import { useCartContext } from "@/context/useCartContext";
 const Navigation = () => {
     const navRef = useRef<HTMLDivElement | null>(null);
     const pathname = usePathname();
+    const searchParams = useSearchParams();
+    const category = searchParams.get('category');
     const isHomePage = pathname === '/';
     const { getTotalItems } = useCartContext();
     const totalItems = getTotalItems();
@@ -33,18 +35,25 @@ const Navigation = () => {
     };
 
     // Déterminer si la navigation doit être en mode sombre (blanc) ou clair (noir)
-    // Sur la page d'accueil : blanc par défaut, noir après scroll
-    // Sur les autres pages : noir dès le début
+    // Toujours utiliser du texte noir pour une meilleure visibilité
     const isSticky = scrollY >= 50;
-    const shouldUseDarkText = !isHomePage || isSticky;
+    const shouldUseDarkText = true; // Toujours utiliser du texte noir pour une meilleure visibilité
+
+    // Vérifier si on est sur la page others avec une catégorie spécifique
+    const isOthersPage = pathname === '/others';
+    const isTelephonesActive = isOthersPage && category === 'telephones';
+    const isMobiliersActive = isOthersPage && category === 'mobiliers';
+    const isAccessoiresActive = isOthersPage && category === 'accessoires';
 
     return (
         <>
             <nav
                 ref={navRef}
                 className={`navbar ${isSticky && " is-sticky"
-                    } fixed top-0 start-0 end-0 z-999 transition-all duration-500 py-5 items-center shadow-md lg:shadow-none [&.is-sticky]:bg-white group [&.is-sticky]:shadow-md ${
-                        isHomePage ? 'bg-white lg:bg-transparent' : 'bg-white'
+                    } fixed top-0 start-0 end-0 z-999 transition-all duration-500 py-3 md:py-4 items-center shadow-md group ${
+                        isHomePage && !isSticky 
+                            ? 'bg-white/95 backdrop-blur-sm lg:bg-white/95' 
+                            : 'bg-white'
                     }`}
                 id="navbar"
             >
@@ -52,11 +61,7 @@ const Navigation = () => {
                     <div className="flex lg:flex-nowrap flex-wrap items-center">
                         <Link 
                             href="/" 
-                            className={`flex items-center transition-colors duration-300 ${
-                                shouldUseDarkText 
-                                    ? 'text-dark' 
-                                    : 'text-dark lg:text-white'
-                            }`}
+                            className="flex items-center transition-colors duration-300"
                         >
                             {/* <Image
                                 src={logo}
@@ -108,7 +113,7 @@ const Navigation = () => {
                                 className="navbar-nav flex-col lg:flex-row gap-y-2 flex lg:items-center justify-center"
                                 id="navbar-navlist"
                             >
-                                <li className={`nav-item mx-1.5 transition-all duration-300 hover:text-primary [&.active]:!text-primary ${
+                                {/* <li className={`nav-item mx-1.5 transition-all duration-300 hover:text-primary [&.active]:!text-primary ${
                                     shouldUseDarkText 
                                         ? 'text-dark [&.active]:text-primary' 
                                         : 'text-dark lg:text-white [&.active]:!text-primary'
@@ -117,57 +122,50 @@ const Navigation = () => {
                                         className="nav-link inline-flex items-center text-sm lg:text-base font-medium py-0.5 px-2"
                                         href={isHomePage ? "#home" : "/#home"}
                                     >
-                                        Accueil
+                                        Electroménager
                                     </a>
-                                </li>
-                                <li className={`nav-item mx-1.5 transition-all duration-300 hover:text-primary [&.active]:!text-primary ${
-                                    shouldUseDarkText 
-                                        ? 'text-dark [&.active]:text-primary' 
-                                        : 'text-dark lg:text-white [&.active]:!text-primary'
-                                }`}>
+                                </li> */}
+                                <li className="nav-item mx-2 transition-all duration-300 hover:text-primary [&.active]:!text-primary text-gray-800 [&.active]:text-primary">
                                     <a
-                                        className="nav-link inline-flex items-center text-sm lg:text-base font-medium py-0.5 px-2"
+                                        className="nav-link inline-flex items-center text-base font-semibold py-1.5 px-3"
                                         href={isHomePage ? "#products" : "/#products"}
                                     >
-                                        Les produits
+                                        Electroménager
                                     </a>
                                 </li>
-                                <li className={`nav-item mx-1.5 transition-all duration-300 hover:text-primary [&.active]:!text-primary ${
-                                    shouldUseDarkText 
-                                        ? 'text-dark [&.active]:text-primary' 
-                                        : 'text-dark lg:text-white [&.active]:!text-primary'
-                                }`}>
-                                    <a
-                                        className="nav-link inline-flex items-center text-sm lg:text-base font-medium py-0.5 px-2"
-                                        href={isHomePage ? "#brands" : "/#brands"}
-                                    >
-                                        Les marques
-                                    </a>
-                                </li>
-                                
-                                <li className={`nav-item mx-1.5 transition-all duration-300 hover:text-primary [&.active]:!text-primary ${
-                                    shouldUseDarkText 
-                                        ? 'text-dark [&.active]:text-primary' 
-                                        : 'text-dark lg:text-white [&.active]:!text-primary'
-                                }`}>
+                                <li className={`nav-item mx-2 transition-all duration-300 hover:text-primary [&.active]:!text-primary text-gray-800 [&.active]:text-primary ${isTelephonesActive ? 'active' : ''}`}>
                                     <Link
-                                        href="/others"
-                                        className="nav-link inline-flex items-center text-sm lg:text-base font-medium py-0.5 px-2"
+                                        href="/others?category=telephones"
+                                        className="nav-link inline-flex items-center text-base font-semibold py-1.5 px-3"
                                     >
-                                        Autres produits
+                                        Telephones
                                     </Link>
                                 </li>
                                 
-                                <li className={`nav-item mx-1.5 transition-all duration-300 hover:text-primary [&.active]:!text-primary ${
-                                    shouldUseDarkText 
-                                        ? 'text-dark [&.active]:text-primary' 
-                                        : 'text-dark lg:text-white [&.active]:!text-primary'
-                                }`}>
+                                <li className={`nav-item mx-2 transition-all duration-300 hover:text-primary [&.active]:!text-primary text-gray-800 [&.active]:text-primary ${isMobiliersActive ? 'active' : ''}`}>
+                                    <Link
+                                        href="/others?category=mobiliers"
+                                        className="nav-link inline-flex items-center text-base font-semibold py-1.5 px-3"
+                                    >
+                                        Mobiliers
+                                    </Link>
+                                </li>
+
+                                <li className={`nav-item mx-2 transition-all duration-300 hover:text-primary [&.active]:!text-primary text-gray-800 [&.active]:text-primary ${isAccessoiresActive ? 'active' : ''}`}>
+                                    <Link
+                                        href="/others?category=accessoires"
+                                        className="nav-link inline-flex items-center text-base font-semibold py-1.5 px-3"
+                                    >
+                                        Accessoires
+                                    </Link>
+                                </li>
+                                
+                                <li className="nav-item mx-2 transition-all duration-300 hover:text-primary [&.active]:!text-primary text-gray-800 [&.active]:text-primary">
                                     <a
-                                        className="nav-link inline-flex items-center text-sm lg:text-base font-medium py-0.5 px-2"
+                                        className="nav-link inline-flex items-center text-base font-semibold py-1.5 px-3"
                                         href={isHomePage ? "#contact" : "/#contact"}
                                     >
-                                        Contactez-nous
+                                        Demande de devis
                                     </a>
                                 </li>
                             </ul>
@@ -175,15 +173,15 @@ const Navigation = () => {
                         <div className="ms-auto shrink hidden lg:inline-flex gap-2">
                             <Link
                                 href="/cart"
-                                className="relative py-2 px-6 inline-flex items-center gap-2 rounded-md text-base text-white bg-primary hover:bg-primaryDark transition-all duration-500 font-medium"
+                                className="relative py-2.5 px-6 inline-flex items-center gap-2 rounded-md text-base text-white bg-primary hover:bg-primaryDark transition-all duration-500 font-semibold shadow-md hover:shadow-lg"
                             >
                                 <IconifyIcon
                                     icon="lucide:shopping-cart"
-                                    className="h-4 w-4 fill-white/40"
+                                    className="h-5 w-5"
                                 />
-                                <span className="hidden sm:block">Panier</span>
+                                <span>Panier</span>
                                 {totalItems > 0 && (
-                                    <span className="absolute -top-2 -right-2 bg-[#ff6b35] text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                    <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-lg">
                                         {totalItems > 99 ? '99+' : totalItems}
                                     </span>
                                 )}

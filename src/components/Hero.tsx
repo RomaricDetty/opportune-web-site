@@ -3,77 +3,120 @@ import IconifyIcon from '@/components/wrappers/IconifyIcon'
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useState, useEffect } from 'react'
-import bgElectro from "@/assets/images/bg-electro.jpg";
-import bgDelivery from "@/assets/images/bg-delivery.jpg";
-import bgOther from "@/assets/images/bg-other.jpg";
-import bgHeroElectro from "@/assets/images/bg-hero-electro.jpg";
-import bgDemo from "@/assets/images/bg-demo.jpg";
+import { formatPrice } from '@/data/products'
 
 /**
- * Interface pour les données d'un slide du carousel
+ * Interface pour les données d'un slide du carousel Hero
  */
 interface HeroSlide {
-    image: any;
-    badge: string;
-    badgeIcon: string;
+    discount: number;
     title: string;
-    titleHighlight: string;
     description: string;
     buttonText: string;
-    buttonIcon: string;
     buttonLink: string;
+    productImage: string;
 }
 
 /**
- * Données des 3 slides du carousel Hero
+ * Interface pour les produits promotionnels affichés à droite
+ */
+interface PromoProduct {
+    name: string;
+    offerText?: string;
+    currentPrice: number;
+    oldPrice?: number;
+    specs?: string;
+    saveText?: string;
+    code?: string;
+    productImage: string;
+    link: string;
+    productId: number;
+    productType: 'electromenager' | 'other';
+}
+
+/**
+ * Données des slides du carousel Hero (carte principale)
  */
 const heroSlides: HeroSlide[] = [
     {
-        image: bgElectro,
-        badge: "Votre Spécialiste en Électroménager",
-        badgeIcon: "lucide:minus",
-        title: "Équipez Votre Maison avec",
-        titleHighlight: "les Meilleurs Électroménagers",
-        description: "Découvrez notre sélection premium d'électroménagers dernière génération. Qualité, innovation et prix imbattables pour transformer votre quotidien.",
-        buttonText: "Découvrir nos produits",
-        buttonIcon: "lucide:shopping-bag",
-        buttonLink: "/products"
+        discount: 30,
+        title: "Casque sans fil avec annulation de bruit",
+        description: "Lorem ipsum dolor sit, consectetur elit nunc suscipit non ipsum nec suscipit.",
+        buttonText: "Acheter maintenant",
+        buttonLink: "/products",
+        productImage: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600"
     },
     {
-        image: bgDelivery,
-        badge: "Livraison Rapide à Abidjan",
-        badgeIcon: "lucide:minus",
-        title: "Des Produits de Qualité à Moindre Coût",
-        titleHighlight: "Livrés Chez Vous",
-        description: "Profitez de nos produits d'électroménager de qualité à des prix imbattables. Un processus simple et rapide pour recevoir vos commandes dans les meilleurs délais.",
-        buttonText: "Découvrir nos produits",
-        buttonIcon: "lucide:shopping-bag",
-        buttonLink: "/products"
+        discount: 25,
+        title: "Casque sans fil avec annulation de bruit",
+        description: "Découvrez nos écouteurs sans fil dernière génération avec annulation de bruit active.",
+        buttonText: "Acheter maintenant",
+        buttonLink: "/products",
+        productImage: "https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=600"
     },
     {
-        image: bgOther,
-        badge: "Autres Produits",
-        badgeIcon: "lucide:minus",
-        title: "Découvrez nos autres produits",
-        titleHighlight: "pour tous vos besoins",
-        description: "Explorez notre gamme complète de produits non électroménager. Des articles de qualité pour tous vos besoins.",
-        buttonText: "Découvrir nos produits",
-        buttonIcon: "lucide:shopping-bag",
-        buttonLink: "/others"
+        discount: 35,
+        title: "Casque sans fil avec annulation de bruit",
+        description: "Qualité sonore exceptionnelle pour une expérience audio immersive.",
+        buttonText: "Acheter maintenant",
+        buttonLink: "/products",
+        productImage: "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=600"
     }
 ];
 
 /**
- * Composant Hero - Section principale avec carousel d'images de fond et texte accrocheur
- * Affiche un carousel de 3 images avec un overlay pour améliorer la lisibilité du texte
- * Le contenu (badge, titre, description, bouton) change selon le slide actif
+ * Produits promotionnels affichés à droite
+ * Sélection de produits avec de bonnes réductions du catalogue
+ */
+const promoProducts: PromoProduct[] = [
+    {
+        name: "Climatiseur Hitachi 2.5kW",
+        offerText: "OFFRE LIMITÉE",
+        currentPrice: 1200000,
+        oldPrice: 1500000,
+        specs: "Climatiseur réversible avec fonction chauffage",
+        saveText: "Économisez jusqu'à 300 000 F CFA",
+        productImage: "https://images.unsplash.com/photo-1631540578001-0c0e7a0a4a0a?w=400",
+        link: "/products/5",
+        productId: 5,
+        productType: 'electromenager'
+    },
+    {
+        name: "Sèche-linge Miele 9kg",
+        specs: "Sèche-linge à condensation avec programme délicat",
+        currentPrice: 1100000,
+        oldPrice: 1300000,
+        saveText: "Économisez jusqu'à 200 000 F CFA",
+        code: "Code: PROMO15",
+        productImage: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400",
+        link: "/products/10",
+        productId: 10,
+        productType: 'electromenager'
+    }
+];
+
+/**
+ * Textes du carousel d'annonces
+ */
+const announcementTexts: string[] = [
+    "JUSQU’À 50% DE REDUCTION",
+    "ELECTROMÉNAGER MEILLEUR PRIX",
+    "DEMANDER UN DEVIS DÈS MAINTENANT",
+    "LIVRAISON GRATUITE",
+    "DES PRODUITS A PETIT PRIX"
+];
+
+/**
+ * Composant Hero - Section principale avec carte promotionnelle principale et produits secondaires
+ * Affiche une grande carte Hero à gauche avec carousel et deux cartes produits à droite
  */
 const Hero = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [announcementIndex, setAnnouncementIndex] = useState(0);
     const currentSlide = heroSlides[currentIndex];
 
     /**
-     * Change automatiquement l'image toutes les 5 secondes
+     * Change automatiquement le slide toutes les 5 secondes
      */
     useEffect(() => {
         const interval = setInterval(() => {
@@ -84,70 +127,152 @@ const Hero = () => {
     }, []);
 
     /**
-     * Change l'image du carousel en fonction de l'index sélectionné
-     * @param index - Index de l'image à afficher
+     * Change automatiquement le texte d'annonce toutes les 4 secondes
+     */
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setAnnouncementIndex((prevIndex) => (prevIndex + 1) % announcementTexts.length);
+        }, 4000);
+
+        return () => clearInterval(interval);
+    }, []);
+
+    /**
+     * Change le slide du carousel en fonction de l'index sélectionné
+     * @param index - Index du slide à afficher
      */
     const goToSlide = (index: number) => {
         setCurrentIndex(index);
     };
 
     return (
-        <section
-            className="relative pt-32 pb-32 overflow-x-hidden from-slate-500/10 bg-no-repeat bg-cover transition-all duration-1000 ease-in-out"
-            id="home"
-            style={{
-                backgroundImage: `url(${currentSlide.image.src})`,
-            }}
-        >
-            {/* Overlay avec dégradé pour améliorer la lisibilité et créer de la profondeur */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30"></div>
-            
-            <div className="container relative z-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 items-center">
-                    <div className="text-sm py-10 px-4 md:py-20 md:px-10">
-                        <span className="inline-flex py-1.5 px-3 md:py-2.5 md:px-4 text-sm md:text-lg text-white font-semibold items-center justify-center rounded-full bg-primary/90 backdrop-blur-sm shadow-lg transition-all duration-500">
-                            <IconifyIcon icon={currentSlide.badgeIcon} /> {currentSlide.badge}
-                        </span>
-                        <h1 className="text-2xl md:text-4xl lg:text-6xl/tight text-white tracking-normal leading-tight md:leading-normal font-bold mb-4 mt-4 md:mt-6 drop-shadow-2xl transition-all duration-500">
-                            {currentSlide.title}{" "}
-                            <span className="text-primary drop-shadow-lg">{currentSlide.titleHighlight}</span>
-                        </h1>
-                        <p className="text-sm md:text-base font-semibold text-white leading-6 md:leading-7 mt-4 md:mt-5 drop-shadow-lg max-w-xl transition-all duration-500">
-                            {currentSlide.description}
-                        </p>
-                        
-                        {/* Bouton d'action principal */}
-                        <div className="flex flex-wrap gap-3 md:gap-4 mt-6 md:mt-8">
-                            <Link 
-                                href={currentSlide.buttonLink}
-                                className="inline-flex items-center justify-center gap-2 py-2.5 px-6 md:py-3 md:px-8 rounded-[100px] text-white bg-primary hover:bg-primaryDark transition-all duration-500 font-semibold text-sm md:text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                            >
-                                <IconifyIcon icon={currentSlide.buttonIcon} className="h-4 w-4 md:h-5 md:w-5" />
-                                {currentSlide.buttonText}
-                            </Link>
+        <>
+
+
+            <section
+                className="relative pt-20 pb-8 md:pt-24 md:pb-12 bg-gray-100 min-h-[500px] md:min-h-[600px]"
+                id="home"
+            >
+                <div className="container relative z-10 px-4 md:px-0">
+
+                    {/* Carousel de textes avec fond bleu */}
+                    <div className="bg-blue-600 py-1 md:py-2 rounded-2xl mt-5">
+                        <div className="container px-4 md:px-0">
+                            <div className="flex items-center justify-center">
+                                <div className="relative w-full max-w-4xl overflow-hidden h-8 md:h-10">
+                                    <div
+                                        className="flex transition-transform duration-500 ease-in-out h-full"
+                                        style={{ transform: `translateX(-${announcementIndex * 100}%)` }}
+                                    >
+                                        {announcementTexts.map((text, index) => (
+                                            <div
+                                                key={index}
+                                                className="min-w-full flex-shrink-0 flex items-center justify-center h-full"
+                                            >
+                                                <p className="text-white text-lg md:text-base font-medium">
+                                                    {text}
+                                                </p>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* Indicateurs de navigation */}
+                                    <div className="flex gap-1.5 justify-center mt-2">
+                                        {announcementTexts.map((_, index) => (
+                                            <button
+                                                key={index}
+                                                onClick={() => setAnnouncementIndex(index)}
+                                                className={`h-1.5 rounded-full transition-all duration-300 ${announcementIndex === index
+                                                        ? 'bg-white w-6'
+                                                        : 'bg-blue-400 w-1.5 hover:bg-blue-300'
+                                                    }`}
+                                                aria-label={`Aller à l'annonce ${index + 1}`}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch mt-5">
+                        {/* Grande carte Hero principale à gauche */}
+                        <div className="lg:col-span-1">
+                            <div className="bg-white rounded-2xl p-2 md:p-4 lg:p-6 h-full flex flex-col relative overflow-hidden shadow-lg">
+
+
+                                {/* Contenu principal */}
+                                <div className="flex-1 flex flex-col gap-4 md:gap-6 mt-12 md:mt-0">
+                                    {/* Texte et contenu */}
+                                    <div className="flex-1 flex flex-col justify-center">
+                                        <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-3 leading-tight">
+                                            {currentSlide.title}
+                                        </h1>
+                                        <p className="text-xs md:text-sm text-gray-600 mb-4 leading-relaxed">
+                                            {currentSlide.description}
+                                        </p>
+
+                                        {/* Image du produit */}
+                                        <div
+                                            className="w-full mb-4 flex items-center justify-center border-2 border-gray-200 p-2 rounded-2xl bg-gray-50 bg-cover bg-center bg-no-repeat transition-opacity duration-500"
+                                            style={{
+                                                backgroundImage: `url(${currentSlide.productImage})`,
+                                                minHeight: '18rem',
+                                                // minWidth: '10em',
+                                            }}
+                                            role="img"
+                                            aria-label={currentSlide.title}
+                                        >
+                                        </div>
+
+                                        <Link
+                                            href={currentSlide.buttonLink}
+                                            className="inline-flex items-center justify-center gap-2 py-2.5 px-5 md:px-6 rounded-full bg-gray-900 hover:bg-gray-800 text-white font-semibold text-sm transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 w-fit"
+                                        >
+                                            {currentSlide.buttonText}
+                                            <IconifyIcon icon="lucide:arrow-right" className="h-4 w-4" />
+                                        </Link>
+                                    </div>
+                                </div>
+
+                                {/* Indicateurs de navigation du carousel */}
+                                <div className="flex gap-2 mt-4 md:mt-6">
+                                    {heroSlides.map((_, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => goToSlide(index)}
+                                            className={`h-2 rounded-full transition-all duration-300 ${currentIndex === index
+                                                    ? 'bg-primary w-8'
+                                                    : 'bg-gray-300 w-2 hover:bg-gray-400'
+                                                }`}
+                                            aria-label={`Aller au slide ${index + 1}`}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Carte publicitaire à droite - masquée sur mobile */}
+                        <div className="lg:col-span-1 hidden md:block">
+                            <div className="bg-white rounded-2xl p-4 md:p-5 lg:p-6 shadow-lg h-full flex items-center justify-center">
+                                {/* Zone publicitaire - à personnaliser selon vos besoins */}
+                                <div className="w-full h-full flex flex-col items-center justify-center text-center">
+                                    <div className="text-sm text-gray-500 mb-2">
+                                        Espace publicitaire
+                                    </div>
+                                    <div className="w-full h-64 md:h-80 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
+                                        <span className="text-gray-400 text-xs">
+                                            Publicité
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            {/* Indicateurs de navigation du carousel */}
-            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex gap-2">
-                {heroSlides.map((_, index) => (
-                    <button
-                        key={index}
-                        onClick={() => goToSlide(index)}
-                        className={`h-2.5 w-2.5 rounded-full transition-all duration-300 ${
-                            currentIndex === index 
-                                ? 'bg-primary w-8' 
-                                : 'bg-white/50 hover:bg-white/70'
-                        }`}
-                        aria-label={`Aller à l'image ${index + 1}`}
-                    />
-                ))}
-            </div>
-        </section>
+            </section>
+        </>
     )
 }
 
 export default Hero
-

@@ -87,7 +87,7 @@ const ProductDetailPage = () => {
                             <IconifyIcon icon="lucide:chevron-right" className="h-4 w-4" />
                             <li>
                                 <Link href="/products" className="hover:text-[#ff6b35] transition-colors">
-                                    Produits
+                                    Produits électroménagers
                                 </Link>
                             </li>
                             <IconifyIcon icon="lucide:chevron-right" className="h-4 w-4" />
@@ -117,36 +117,19 @@ const ProductDetailPage = () => {
                         <div className="flex flex-col">
                             {/* Nom et marque */}
                             <div className="mb-4">
-                                <Link
-                                    href={`/brands/${generateBrandSlug(product.brand)}`}
-                                    className="text-sm text-[#ff6b35] font-semibold uppercase tracking-wide hover:underline transition-colors inline-block"
+                                <div
+                                    className="text-sm text-[#ff6b35] font-semibold uppercase tracking-wide inline-block"
                                 >
                                     {product.brand}
-                                </Link>
+                                </div>
                                 <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-3">
                                     {product.name}
                                 </h1>
                                 
                             </div>
 
-                            {/* Prix */}
-                            <div className="mb-6 pb-6 border-b border-gray-200">
-                                <div className="flex items-baseline gap-4">
-                                    <div className="text-4xl font-bold text-gray-900">
-                                        {formatPrice(product.currentPrice)}
-                                    </div>
-                                    {product.oldPrice > product.currentPrice && (
-                                        <>
-                                            <div className="text-xl text-gray-500 line-through">
-                                                {formatPrice(product.oldPrice)}
-                                            </div>
-                                            <div className="text-lg font-semibold text-[#ff6b35]">
-                                                Économisez {formatPrice(product.oldPrice - product.currentPrice)}
-                                            </div>
-                                        </>
-                                    )}
-                                </div>
-                            </div>
+                            {/* Prix - Section retirée */}
+                            {/* Section prix complètement supprimée */}
 
                             {/* Description */}
                             {product.description && (
@@ -168,17 +151,16 @@ const ProductDetailPage = () => {
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <span className="text-gray-600 font-medium min-w-[120px]">Marque :</span>
-                                    <Link
-                                        href={`/brands/${generateBrandSlug(product.brand)}`}
-                                        className="text-gray-900 hover:text-[#ff6b35] transition-colors hover:underline"
+                                    <div
+                                        className="text-gray-900 font-semibold"
                                     >
                                         {product.brand}
-                                    </Link>
+                                    </div>
                                 </div>
                                 {product.minQuantity && product.minQuantity > 1 && (
                                     <div className="flex items-center gap-3">
                                         <span className="text-gray-600 font-medium min-w-[120px]">Quantité minimale :</span>
-                                        <span className="text-[#ff6b35] font-semibold">{product.minQuantity}</span>
+                                        <span className="text-gray-900 font-semibold">{product.minQuantity}</span>
                                     </div>
                                 )}
                                 <div className="flex items-center gap-3">
@@ -258,9 +240,7 @@ const ProductDetailPage = () => {
                                             <h3 className="text-sm font-semibold text-gray-900 mb-2 line-clamp-1">
                                                 {similarProduct.name}
                                             </h3>
-                                            <div className="text-lg font-bold text-gray-900">
-                                                {formatPrice(similarProduct.currentPrice)}
-                                            </div>
+                                            {/* Prix retiré */}
                                         </div>
                                     </Link>
                                 ))}

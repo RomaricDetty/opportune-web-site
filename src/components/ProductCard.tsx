@@ -101,16 +101,7 @@ const ProductCard = ({ product, viewMode = 'grid', productType = 'electromenager
                         </div>
 
                         <div className="flex items-center justify-between">
-                            <div>
-                                <div className="text-2xl font-bold text-gray-900">
-                                    {formatPrice(product.currentPrice)}
-                                </div>
-                                {product.oldPrice > product.currentPrice && (
-                                    <div className="text-sm text-gray-500 line-through">
-                                        {formatPrice(product.oldPrice)}
-                                    </div>
-                                )}
-                            </div>
+                            {/* Prix retiré */}
                         </div>
                     </div>
                 </Link>
@@ -174,16 +165,9 @@ const ProductCard = ({ product, viewMode = 'grid', productType = 'electromenager
                         </p>
                     )}
 
-                    {/* Prix */}
+                    {/* Prix retiré */}
                     <div className="mb-3">
-                        <div className="text-xl font-bold text-gray-900">
-                            {formatPrice(product.currentPrice)}
-                        </div>
-                        {product.oldPrice > product.currentPrice && (
-                            <div className="text-sm text-gray-500 line-through">
-                                {formatPrice(product.oldPrice)}
-                            </div>
-                        )}
+                        {/* Section prix supprimée */}
                     </div>
                 </div>
             </Link>

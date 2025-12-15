@@ -11,11 +11,11 @@ const Contact = () => {
                     <div>
                         <div>
                             <span className="text-sm text-primary uppercase font-semibold tracking-wider text-default-950 mb-6">
-                                Contactez-nous
+                                Demande de devis
                             </span>
                         </div>
                         <h2 className="text-3xl md:text-4xl/tight font-semibold mt-4">
-                            Nous sommes ouverts pour discuter avec de bons gens.
+                            Demande de devis
                         </h2>
                         {/* <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-start mt-10">
                             <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
@@ -51,26 +51,7 @@ const Contact = () => {
                                     href="#"
                                     className="text-xs text-primary font-bold uppercase"
                                 >
-                                    Nous contacter
-                                </a>
-                            </div>
-                        </div>
-                        <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-start mt-10">
-                            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                                <IconifyIcon
-                                    icon="lucide:smartphone"
-                                    className="text-2xl text-primary"
-                                />
-                            </div>
-                            <div>
-                                <h5 className="text-base text-muted font-medium mb-1">
-                                    (+225) 07 77 123 45 67
-                                </h5>
-                                <a
-                                    href="#"
-                                    className="text-xs text-primary font-bold uppercase"
-                                >
-                                    Appeler maintenant
+                                    Demande de devis
                                 </a>
                             </div>
                         </div>
@@ -145,13 +126,13 @@ const Contact = () => {
                                                 htmlFor="formMessages"
                                                 className="block text-sm/normal font-semibold text-black mb-2"
                                             >
-                                                Message
+                                                Description de la demande
                                             </label>
                                             <textarea
                                                 className="block w-full text-sm rounded-md py-3 px-4 border-gray-200 focus:border-gray-300 focus:ring-transparent"
                                                 id="formMessages"
                                                 rows={4}
-                                                placeholder="Tapez votre message..."
+                                                placeholder="Tapez la description de la demande..."
                                                 required
                                                 defaultValue={""}
                                             />
@@ -163,7 +144,7 @@ const Contact = () => {
                                         type="submit"
                                         className="flex items-center justify-center py-2 px-6 rounded-md text-base border border-primary text-white bg-primary hover:bg-primaryDark transition-all duration-500 font-medium"
                                     >
-                                        Envoyer le message{" "}
+                                        Envoyer la demande{" "}
                                         <IconifyIcon
                                             icon="lucide:send"
                                             className="mdi mdi-send ms-1"
