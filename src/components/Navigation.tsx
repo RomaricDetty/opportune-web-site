@@ -7,14 +7,13 @@ import Gumshoe from 'gumshoejs'
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { useCartContext } from "@/context/useCartContext";
 
 /**
- * Composant Navigation - Barre de navigation avec changement de couleur au scroll
- * Les éléments sont blancs par défaut sur la page d'accueil et noirs sur les autres pages
+ * Composant interne qui utilise useSearchParams
  */
-const Navigation = () => {
+const NavigationContent = () => {
     const navRef = useRef<HTMLDivElement | null>(null);
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -191,6 +190,27 @@ const Navigation = () => {
                 </div>
             </nav>
         </>
+    );
+};
+
+/**
+ * Composant Navigation - Barre de navigation avec changement de couleur au scroll
+ * Les éléments sont blancs par défaut sur la page d'accueil et noirs sur les autres pages
+ */
+const Navigation = () => {
+    return (
+        <Suspense fallback={
+            <nav className="navbar fixed top-0 start-0 end-0 z-999 bg-white shadow-md">
+                <div className="container">
+                    <div className="flex items-center justify-between py-3 md:py-4">
+                        <div className="h-9 w-32 bg-gray-200 animate-pulse rounded"></div>
+                        <div className="h-10 w-24 bg-gray-200 animate-pulse rounded"></div>
+                    </div>
+                </div>
+            </nav>
+        }>
+            <NavigationContent />
+        </Suspense>
     );
 };
 

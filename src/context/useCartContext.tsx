@@ -37,9 +37,17 @@ export function useCartContext() {
 
 function CartProvider({ children }: Readonly<{ children: ReactNode }>) {
     const [cartItems, setCartItems] = useState<CartItem[]>([])
+    const [isClient, setIsClient] = useState(false)
 
-    // Charger le panier depuis localStorage au montage
+    // Vérifier si on est côté client
     useEffect(() => {
+        setIsClient(true)
+    }, [])
+
+    // Charger le panier depuis localStorage au montage (uniquement côté client)
+    useEffect(() => {
+        if (!isClient) return
+        
         const savedCart = localStorage.getItem('cart')
         if (savedCart) {
             try {
@@ -48,12 +56,14 @@ function CartProvider({ children }: Readonly<{ children: ReactNode }>) {
                 console.error('Error loading cart from localStorage:', error)
             }
         }
-    }, [])
+    }, [isClient])
 
-    // Sauvegarder le panier dans localStorage à chaque changement
+    // Sauvegarder le panier dans localStorage à chaque changement (uniquement côté client)
     useEffect(() => {
+        if (!isClient) return
+        
         localStorage.setItem('cart', JSON.stringify(cartItems))
-    }, [cartItems])
+    }, [cartItems, isClient])
 
     // Obtenir la quantité minimale d'un produit (par défaut 1)
     const getMinQuantity = (product: ProductData): number => {
