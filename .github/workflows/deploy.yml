@@ -16,9 +16,9 @@ jobs:
             - name: Setup Node.js
               uses: actions/setup-node@v3
               with:
-                  node-version: "22.x"
+                  node-version: "18.x"
             - name: Install Dependencies
-              run: npm install
+              run: npm install --legacy-peer-deps
             - name: Build Opportune app
               run: npm run build
             - name: Deploy to VPS via SSH
