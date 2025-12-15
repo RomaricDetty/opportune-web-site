@@ -1,6 +1,6 @@
 "use client"
 import React from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
@@ -10,13 +10,29 @@ import { useCartContext } from '@/context/useCartContext'
 import { otherProductsData } from '@/data/others'
 
 /**
+ * Génère un slug à partir du nom d'une catégorie
+ */
+const generateCategorySlug = (categoryName: string): string => {
+    return categoryName
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // Supprime les accents
+        .replace(/[^a-z0-9]+/g, '-') // Remplace les caractères spéciaux par des tirets
+        .replace(/^-+|-+$/g, '') // Supprime les tirets en début et fin
+}
+
+/**
  * Page de détails d'un produit non-électroménager
  */
 const OtherProductDetailPage = () => {
     const params = useParams()
+    const searchParams = useSearchParams()
     const productId = parseInt(params.id as string)
     const { addToCart, isInCart } = useCartContext()
     const inCart = isInCart(productId)
+
+    // Récupérer le paramètre category depuis l'URL
+    const categorySlug = searchParams.get('category')
 
     // Trouver le produit
     const product = otherProductsData.find(p => p.id === productId)
@@ -57,6 +73,13 @@ const OtherProductDetailPage = () => {
         addToCart(product)
     }
 
+    // Déterminer l'URL de retour vers la catégorie
+    // Si categorySlug est présent dans l'URL, l'utiliser
+    // Sinon, générer le slug à partir de la catégorie du produit
+    const categoryBackUrl = categorySlug 
+        ? `/others?category=${categorySlug}`
+        : `/others?category=${generateCategorySlug(product.category)}`
+
     // Trouver des produits similaires (même catégorie ou même marque)
     const similarProducts = otherProductsData
         .filter(p => p.id !== product.id && (p.category === product.category || p.brand === product.brand))
@@ -77,8 +100,8 @@ const OtherProductDetailPage = () => {
                             </li>
                             <IconifyIcon icon="lucide:chevron-right" className="h-4 w-4" />
                             <li>
-                                <Link href="/others" className="hover:text-[#ff6b35] transition-colors">
-                                    Autres produits
+                                <Link href={categoryBackUrl} className="hover:text-[#ff6b35] transition-colors">
+                                    {product.category}
                                 </Link>
                             </li>
                             <IconifyIcon icon="lucide:chevron-right" className="h-4 w-4" />
@@ -108,32 +131,16 @@ const OtherProductDetailPage = () => {
                         <div className="flex flex-col">
                             {/* Nom et marque */}
                             <div className="mb-4">
-                                <span className="text-sm text-[#ff6b35] font-semibold uppercase tracking-wide">
+                                <div className="text-sm text-[#ff6b35] font-semibold uppercase tracking-wide">
                                     {product.brand}
-                                </span>
+                                </div>
                                 <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-3">
                                     {product.name}
                                 </h1>
                             </div>
 
-                            {/* Prix */}
-                            <div className="mb-6 pb-6 border-b border-gray-200">
-                                <div className="flex items-baseline gap-4 flex-wrap">
-                                    <div className="text-4xl font-bold text-gray-900">
-                                        {formatPrice(product.currentPrice)}
-                                    </div>
-                                    {product.oldPrice > product.currentPrice && (
-                                        <>
-                                            <div className="text-xl text-gray-500 line-through">
-                                                {formatPrice(product.oldPrice)}
-                                            </div>
-                                            <div className="text-lg font-semibold text-[#ff6b35]">
-                                                Économisez {formatPrice(product.oldPrice - product.currentPrice)}
-                                            </div>
-                                        </>
-                                    )}
-                                </div>
-                            </div>
+                            {/* Prix - Section retirée */}
+                            {/* Section prix complètement supprimée */}
 
                             {/* Description */}
                             {product.description && (
@@ -155,7 +162,7 @@ const OtherProductDetailPage = () => {
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <span className="text-gray-600 font-medium min-w-[120px]">Marque :</span>
-                                    <span className="text-gray-900">{product.brand}</span>
+                                    <div className="text-gray-900 font-semibold">{product.brand}</div>
                                 </div>
                                 {product.minQuantity && product.minQuantity > 1 && (
                                     <div className="flex items-center gap-3">
@@ -240,9 +247,7 @@ const OtherProductDetailPage = () => {
                                             <h3 className="text-sm font-semibold text-gray-900 mb-2 line-clamp-1">
                                                 {similarProduct.name}
                                             </h3>
-                                            <div className="text-lg font-bold text-gray-900">
-                                                {formatPrice(similarProduct.currentPrice)}
-                                            </div>
+                                            {/* Prix retiré */}
                                         </div>
                                     </Link>
                                 ))}

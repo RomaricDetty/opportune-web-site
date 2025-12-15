@@ -1,5 +1,6 @@
 "use client"
 import React, { useState, useMemo, useEffect, useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import IconifyIcon from '@/components/wrappers/IconifyIcon'
@@ -14,10 +15,59 @@ type ViewMode = 'grid' | 'list'
 const PRODUCTS_PER_PAGE = 12
 
 /**
+ * Catégories autorisées avec leurs slugs et noms réels
+ */
+const ALLOWED_CATEGORIES = {
+    'telephones': 'Téléphones',
+    'mobiliers': 'Meubles',
+    'accessoires': 'Accessoires'
+} as const
+
+/**
+ * Marques par défaut pour chaque catégorie
+ */
+const DEFAULT_BRANDS_BY_CATEGORY: Record<string, string[]> = {
+    'telephones': ['Samsung', 'Apple', 'Xiaomi', 'Huawei', 'Oppo', 'Tecno', 'Infinix'],
+    'mobiliers': ['HomeStyle', 'WoodCraft', 'OfficePro', 'IKEA', 'Maisons du Monde'],
+    'accessoires': ['HomeStyle', 'TextileHome', 'ArtDecor', 'LightStyle', 'DecoHome']
+}
+
+/**
+ * Génère un slug à partir du nom d'une catégorie
+ */
+const generateCategorySlug = (categoryName: string): string => {
+    return categoryName
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // Supprime les accents
+        .replace(/[^a-z0-9]+/g, '-') // Remplace les caractères spéciaux par des tirets
+        .replace(/^-+|-+$/g, '') // Supprime les tirets en début et fin
+}
+
+/**
+ * Convertit un slug de catégorie en nom de catégorie réel
+ */
+const slugToCategoryName = (slug: string): string | null => {
+    return ALLOWED_CATEGORIES[slug as keyof typeof ALLOWED_CATEGORIES] || null
+}
+
+/**
+ * Vérifie si une catégorie est autorisée
+ */
+const isCategoryAllowed = (slug: string | null): boolean => {
+    if (!slug) return false // Pas de catégorie = non autorisé (doit spécifier une catégorie)
+    return slug in ALLOWED_CATEGORIES
+}
+
+/**
  * Page Others - Affiche tous les produits non-électroménagers avec filtres avancés
  */
 const OthersPage = () => {
-    const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+    const searchParams = useSearchParams()
+    const categorySlug = searchParams.get('category')
+    const categoryFromUrl = categorySlug ? slugToCategoryName(categorySlug) : null
+    const isCategoryValid = isCategoryAllowed(categorySlug)
+
     const [selectedBrands, setSelectedBrands] = useState<string[]>([])
     const [selectedRatings, setSelectedRatings] = useState<number[]>([])
     const [sortOption, setSortOption] = useState<SortOption>('popular')
@@ -28,31 +78,51 @@ const OthersPage = () => {
     // Référence pour le scroll vers le haut lors du changement de page
     const productsSectionRef = useRef<HTMLElement>(null)
 
-    // Extraire toutes les catégories uniques
-    const categories = useMemo(() => {
-        const uniqueCategories = Array.from(new Set(otherProductsData.map(p => p.category)))
-        return uniqueCategories.sort().map(cat => ({
-            name: cat,
-            count: otherProductsData.filter(p => p.category === cat).length
-        }))
-    }, [])
-
-    // Extraire toutes les marques uniques
+    // Extraire toutes les marques uniques pour la catégorie sélectionnée (ou toutes si aucune catégorie)
     const brands = useMemo(() => {
-        const uniqueBrands = Array.from(new Set(otherProductsData.map(p => p.brand)))
-        return uniqueBrands.sort().map(brand => ({
+        // Si la catégorie n'est pas valide, retourner un tableau vide
+        if (categorySlug && !isCategoryValid) {
+            return []
+        }
+
+        const productsToUse = categoryFromUrl 
+            ? otherProductsData.filter(p => p.category === categoryFromUrl)
+            : otherProductsData
+        
+        // Récupérer les marques depuis les produits
+        const brandsFromProducts = Array.from(new Set(productsToUse.map(p => p.brand)))
+        
+        // Si on a une catégorie et qu'il y a des marques par défaut pour cette catégorie
+        if (categorySlug && DEFAULT_BRANDS_BY_CATEGORY[categorySlug]) {
+            const defaultBrands = DEFAULT_BRANDS_BY_CATEGORY[categorySlug]
+            // Combiner les marques des produits avec les marques par défaut
+            const allBrands = Array.from(new Set([...brandsFromProducts, ...defaultBrands]))
+            
+            return allBrands.sort().map(brand => ({
+                name: brand,
+                count: productsToUse.filter(p => p.brand === brand).length || 0
+            }))
+        }
+        
+        // Sinon, utiliser uniquement les marques des produits
+        return brandsFromProducts.sort().map(brand => ({
             name: brand,
-            count: otherProductsData.filter(p => p.brand === brand).length
+            count: productsToUse.filter(p => p.brand === brand).length
         }))
-    }, [])
+    }, [categoryFromUrl, categorySlug, isCategoryValid])
 
     // Filtrer les produits
     const filteredProducts = useMemo(() => {
+        // Si la catégorie n'est pas valide, retourner un tableau vide
+        if (categorySlug && !isCategoryValid) {
+            return []
+        }
+
         let filtered = otherProductsData
 
-        // Filtre par catégories
-        if (selectedCategories.length > 0) {
-            filtered = filtered.filter(p => selectedCategories.includes(p.category))
+        // Filtre par catégorie depuis l'URL
+        if (categoryFromUrl) {
+            filtered = filtered.filter(p => p.category === categoryFromUrl)
         }
 
         // Filtre par marques
@@ -76,7 +146,7 @@ const OthersPage = () => {
         }
 
         return filtered
-    }, [selectedCategories, selectedBrands, selectedRatings, sortOption])
+    }, [categoryFromUrl, selectedBrands, selectedRatings, sortOption, categorySlug, isCategoryValid])
 
     // Calculer la pagination
     const totalPages = useMemo(() => {
@@ -90,23 +160,21 @@ const OthersPage = () => {
         return filteredProducts.slice(startIndex, endIndex)
     }, [filteredProducts, currentPage])
 
-    // Réinitialiser à la page 1 quand les filtres changent
+    // Réinitialiser les marques sélectionnées quand la catégorie change
+    useEffect(() => {
+        setSelectedBrands([])
+        setCurrentPage(1)
+    }, [categoryFromUrl])
+
+    // Réinitialiser à la page 1 quand les autres filtres changent
     useEffect(() => {
         setCurrentPage(1)
-    }, [selectedCategories, selectedBrands, selectedRatings, sortOption])
+    }, [selectedBrands, selectedRatings, sortOption])
 
     // Gérer les filtres appliqués
     const appliedFilters = useMemo(() => {
         const filters: Array<{ type: string; value: string; onRemove: () => void }> = []
         
-        selectedCategories.forEach(cat => {
-            filters.push({
-                type: 'Catégorie',
-                value: cat,
-                onRemove: () => setSelectedCategories(prev => prev.filter(c => c !== cat))
-            })
-        })
-
         selectedBrands.forEach(brand => {
             filters.push({
                 type: 'Marque',
@@ -124,7 +192,7 @@ const OthersPage = () => {
         })
 
         return filters
-    }, [selectedCategories, selectedBrands, selectedRatings])
+    }, [selectedBrands, selectedRatings])
 
     // Empêcher le scroll du body quand le drawer est ouvert
     useEffect(() => {
@@ -137,14 +205,6 @@ const OthersPage = () => {
             document.body.style.overflow = 'unset'
         }
     }, [isFiltersOpen])
-
-    const toggleCategory = (category: string) => {
-        setSelectedCategories(prev =>
-            prev.includes(category)
-                ? prev.filter(c => c !== category)
-                : [...prev, category]
-        )
-    }
 
     const toggleBrand = (brand: string) => {
         setSelectedBrands(prev =>
@@ -229,36 +289,10 @@ const OthersPage = () => {
     }
 
     /**
-     * Composant réutilisable pour afficher les filtres (catégories et marques)
+     * Composant réutilisable pour afficher les filtres (marques uniquement)
      */
     const renderFilters = () => (
         <>
-            {/* Catégories */}
-            {categories.length > 0 && (
-                <div className="mb-8">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Catégories</h3>
-                    <div className="space-y-3">
-                        {categories.map((cat) => (
-                            <label
-                                key={cat.name}
-                                className="flex items-center justify-between cursor-pointer hover:text-[#ff6b35] transition-colors group"
-                            >
-                                <div className="flex items-center gap-2">
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedCategories.includes(cat.name)}
-                                        onChange={() => toggleCategory(cat.name)}
-                                        className="w-4 h-4 text-[#ff6b35] rounded border-gray-300 focus:ring-[#ff6b35]"
-                                    />
-                                    <span className="text-sm text-gray-700 group-hover:text-[#ff6b35]">{cat.name}</span>
-                                </div>
-                                <span className="text-xs text-gray-500">({cat.count})</span>
-                            </label>
-                        ))}
-                    </div>
-                </div>
-            )}
-
             {/* Marques */}
             {brands.length > 0 && (
                 <div className="mb-8">
@@ -287,6 +321,38 @@ const OthersPage = () => {
         </>
     )
 
+    // Si la catégorie n'est pas valide ou absente, afficher le message d'erreur
+    if (!categorySlug || !isCategoryValid) {
+        return (
+            <>
+                <Navigation />
+                <section className="pt-24 pb-8 min-h-screen bg-white flex items-center justify-center">
+                    <div className="container px-4">
+                        <div className="max-w-md mx-auto text-center py-12 bg-white rounded-lg border border-gray-200 shadow-sm">
+                            <div className="mb-6">
+                                <IconifyIcon icon="lucide:alert-circle" className="h-16 w-16 text-orange-500 mx-auto" />
+                            </div>
+                            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+                                Catégorie introuvable
+                            </h1>
+                            <p className="text-base md:text-lg text-gray-600 mb-6 px-4">
+                                La catégorie demandée n'existe pas chez nous
+                            </p>
+                            <a
+                                href="/"
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-[#ff6b35] text-white font-semibold rounded-lg hover:bg-[#e55a2b] transition-colors"
+                            >
+                                <IconifyIcon icon="lucide:arrow-left" className="h-5 w-5" />
+                                Retour à l'accueil
+                            </a>
+                        </div>
+                    </div>
+                </section>
+                <Footer />
+            </>
+        )
+    }
+
     return (
         <>
             <Navigation />
@@ -295,7 +361,7 @@ const OthersPage = () => {
                     {/* En-tête avec titre et options de vue */}
                     <div className="pt-8 flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                         <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-                            Autres produits
+                            {categoryFromUrl ? categoryFromUrl : 'Autres produits'}
                         </h1>
                         <div className="flex items-center gap-4">
                             {/* Options de vue */}
@@ -355,7 +421,7 @@ const OthersPage = () => {
                             <span className="text-sm text-gray-700">Moins cher</span>
                         </label>
                         {/* Bouton filtres mobile */}
-                        {(categories.length > 0 || brands.length > 0) && (
+                        {brands.length > 0 && (
                             <button
                                 onClick={() => setIsFiltersOpen(true)}
                                 className="lg:hidden ml-auto flex items-center gap-2 px-4 py-2 bg-[#ff6b35] text-white rounded-lg hover:bg-[#ff6b35] transition-colors font-medium text-sm"
@@ -363,9 +429,9 @@ const OthersPage = () => {
                             >
                                 <IconifyIcon icon="lucide:filter" className="h-4 w-4" />
                                 Filtres
-                                {(selectedCategories.length > 0 || selectedBrands.length > 0) && (
+                                {selectedBrands.length > 0 && (
                                     <span className="bg-white text-[#ff6b35] rounded-full px-2 py-0.5 text-xs font-bold">
-                                        {selectedCategories.length + selectedBrands.length}
+                                        {selectedBrands.length}
                                     </span>
                                 )}
                             </button>
@@ -391,7 +457,7 @@ const OthersPage = () => {
 
                     <div className="flex gap-6">
                         {/* Sidebar de filtres desktop */}
-                        {categories.length > 0 || brands.length > 0 ? (
+                        {brands.length > 0 ? (
                             <aside className="hidden lg:block w-64 flex-shrink-0">
                                 <div className="bg-white rounded-lg border border-gray-200 p-6 sticky top-24">
                                     {renderFilters()}
@@ -493,7 +559,9 @@ const OthersPage = () => {
                                         Aucun produit disponible pour le moment
                                     </p>
                                     <p className="text-gray-500 text-sm">
-                                        Les produits non-électroménagers seront bientôt disponibles
+                                        {categoryFromUrl 
+                                            ? `Aucun produit trouvé dans la catégorie "${categoryFromUrl}"`
+                                            : 'Les produits non-électroménagers seront bientôt disponibles'}
                                     </p>
                                 </div>
                             )}
@@ -503,7 +571,7 @@ const OthersPage = () => {
             </section>
 
             {/* Drawer de filtres mobile */}
-            {isFiltersOpen && (categories.length > 0 || brands.length > 0) && (
+            {isFiltersOpen && brands.length > 0 && (
                 <>
                     {/* Overlay */}
                     <div

@@ -24,8 +24,8 @@ function page() {
         <>
             <Navigation />
             <Hero />
-            <Brands />
-            <Delivery />
+            {/* <Brands /> */}
+            {/* <Delivery /> */}
             <Product />
             {/* <Features /> */}
             {/* <Newsletter /> */}

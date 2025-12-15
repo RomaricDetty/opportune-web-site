@@ -229,6 +229,34 @@ export const productsData: ProductData[] = [
         rating: 4.2,
         description: 'Mixeur plongeant avec accessoires de préparation',
         minQuantity: 1
+    },
+    {
+        id: 16,
+        name: 'Réfrigérateur Samsung 400L',
+        brand: 'Samsung',
+        category: 'Réfrigérateurs',
+        image: 'https://images.unsplash.com/photo-1571175443880-49e1d1b5d685?w=400',
+        currentPrice: 500000,
+        oldPrice: 500000,
+        discount: 0, // Produit sans réduction
+        inStock: true,
+        rating: 4.3,
+        description: 'Réfrigérateur combiné avec technologie No Frost',
+        minQuantity: 1
+    },
+    {
+        id: 17,
+        name: 'Lave-linge LG 10kg',
+        brand: 'LG',
+        category: 'Lave-linge',
+        image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400',
+        currentPrice: 320000,
+        oldPrice: 320000,
+        discount: 0, // Produit sans réduction
+        inStock: true,
+        rating: 4.5,
+        description: 'Machine à laver hublot avec technologie vapeur',
+        minQuantity: 1
     }
 ]
 

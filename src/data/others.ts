@@ -324,5 +324,19 @@ export const otherProductsData: ProductData[] = [
         rating: 4.3,
         description: 'Parasol avec base et manivelle',
         minQuantity: 1
+    },
+    {
+        id: 122,
+        name: 'Canapé 2 places en cuir',
+        brand: 'HomeStyle',
+        category: 'Meubles',
+        image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400',
+        currentPrice: 380000,
+        oldPrice: 380000,
+        discount: 0, // Produit sans réduction
+        inStock: true,
+        rating: 4.4,
+        description: 'Canapé en cuir véritable, 2 places',
+        minQuantity: 1
     }
 ]

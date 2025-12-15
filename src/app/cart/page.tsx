@@ -24,7 +24,7 @@ const CartPage = () => {
             <>
                 <Navigation />
                 <section className="pt-24 pb-20 min-h-screen bg-white">
-                    <div className="container">
+                    <div className="container pt-8">
                         <div className="text-center py-12">
                             <IconifyIcon 
                                 icon="lucide:shopping-cart" 
@@ -55,7 +55,7 @@ const CartPage = () => {
         <>
             <Navigation />
             <section className="pt-24 pb-20 min-h-screen bg-white">
-                <div className="container">
+                <div className="container pt-8">
                     <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8">
                         Mon panier ({cartItems.length} {cartItems.length > 1 ? 'articles' : 'article'})
                     </h1>
@@ -99,9 +99,7 @@ const CartPage = () => {
                                                 <p className="text-sm text-gray-600 mb-2">
                                                     {item.product.brand} • {item.product.category}
                                                 </p>
-                                                <div className="text-xl font-bold text-gray-900">
-                                                    {formatPrice(item.product.currentPrice)}
-                                                </div>
+                                                {/* Prix retiré */}
                                                 {minQuantity > 1 && (
                                                     <p className="text-xs text-[#ff6b35] font-medium mt-1">
                                                         Quantité minimale : {minQuantity}
@@ -145,11 +143,9 @@ const CartPage = () => {
                                             </div>
                                         </div>
 
-                                        {/* Prix total pour cet article */}
+                                        {/* Prix total pour cet article - retiré */}
                                         <div className="flex flex-col items-end justify-between">
-                                            <div className="text-2xl font-bold text-gray-900">
-                                                {formatPrice(item.product.currentPrice * item.quantity)}
-                                            </div>
+                                            {/* Prix retiré */}
                                         </div>
                                     </div>
                                 )
@@ -175,23 +171,17 @@ const CartPage = () => {
                                 </h2>
 
                                 <div className="space-y-4 mb-6">
-                                    <div className="flex justify-between text-gray-600">
-                                        <span>Sous-total</span>
-                                        <span className="font-semibold">{formatPrice(totalPrice)}</span>
-                                    </div>
-                                    <div className="flex justify-between text-gray-600">
-                                        <span>Livraison</span>
-                                        <span className="font-semibold">Gratuite</span>
-                                    </div>
-                                    <div className="border-t border-gray-200 pt-4 flex justify-between text-lg font-bold text-gray-900">
-                                        <span>Total</span>
-                                        <span>{formatPrice(totalPrice)}</span>
+                                    {/* Résumé de commande - Prix retirés */}
+                                    <div className="border-t border-gray-200 pt-4">
+                                        <p className="text-gray-600 text-center">
+                                            Demandez un devis personnalisé pour vos articles
+                                        </p>
                                     </div>
                                 </div>
 
                                 <button className="w-full bg-[#ff6b35] hover:bg-[#ff6b35] text-white py-4 px-6 rounded-lg transition-colors font-semibold text-lg flex items-center justify-center gap-2 mb-4">
-                                    <IconifyIcon icon="lucide:credit-card" className="h-5 w-5" />
-                                    Passer la commande
+                                    <IconifyIcon icon="lucide:file-text" className="h-5 w-5" />
+                                    Demander un devis
                                 </button>
 
                                 <Link
