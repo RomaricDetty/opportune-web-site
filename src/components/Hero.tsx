@@ -41,7 +41,7 @@ const heroSlides: HeroSlide[] = [
     },
     {
         image: bgDelivery,
-        badge: "Livraison Rapide",
+        badge: "Livraison Rapide à Abidjan",
         badgeIcon: "lucide:minus",
         title: "Des Produits de Qualité à Moindre Coût",
         titleHighlight: "Livrés Chez Vous",
