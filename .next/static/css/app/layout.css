@@ -1089,6 +1089,12 @@ select{
 .min-w-full{
   min-width: 100% !important;
 }
+.min-w-0{
+  min-width: 0px !important;
+}
+.min-w-\[2\.5rem\]{
+  min-width: 2.5rem !important;
+}
 .max-w-2xl{
   max-width: 42rem !important;
 }
@@ -1440,10 +1446,6 @@ select{
 }
 .bg-black\/80{
   background-color: rgb(0 0 0 / 0.8) !important;
-}
-.bg-blue-400{
-  --tw-bg-opacity: 1 !important;
-  background-color: rgb(96 165 250 / var(--tw-bg-opacity, 1)) !important;
 }
 .bg-blue-50{
   --tw-bg-opacity: 1 !important;
@@ -2383,10 +2385,6 @@ p{
   --tw-bg-opacity: 1 !important;
   background-color: rgb(255 107 53 / var(--tw-bg-opacity, 1)) !important;
 }
-.hover\:bg-blue-300:hover{
-  --tw-bg-opacity: 1 !important;
-  background-color: rgb(147 197 253 / var(--tw-bg-opacity, 1)) !important;
-}
 .hover\:bg-blue-700:hover{
   --tw-bg-opacity: 1 !important;
   background-color: rgb(29 78 216 / var(--tw-bg-opacity, 1)) !important;
@@ -2612,11 +2610,32 @@ p{
   .sm\:col-span-2{
     grid-column: span 2 / span 2 !important;
   }
+  .sm\:mb-2{
+    margin-bottom: 0.5rem !important;
+  }
+  .sm\:mb-6{
+    margin-bottom: 1.5rem !important;
+  }
   .sm\:block{
     display: block !important;
   }
   .sm\:inline{
     display: inline !important;
+  }
+  .sm\:h-28{
+    height: 7rem !important;
+  }
+  .sm\:h-5{
+    height: 1.25rem !important;
+  }
+  .sm\:w-28{
+    width: 7rem !important;
+  }
+  .sm\:w-5{
+    width: 1.25rem !important;
+  }
+  .sm\:min-w-\[3rem\]{
+    min-width: 3rem !important;
   }
   .sm\:grid-cols-2{
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -2624,8 +2643,51 @@ p{
   .sm\:flex-row{
     flex-direction: row !important;
   }
+  .sm\:gap-2{
+    gap: 0.5rem !important;
+  }
+  .sm\:gap-3{
+    gap: 0.75rem !important;
+  }
+  .sm\:gap-6{
+    gap: 1.5rem !important;
+  }
+  .sm\:self-start{
+    align-self: flex-start !important;
+  }
+  .sm\:p-6{
+    padding: 1.5rem !important;
+  }
+  .sm\:px-6{
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+  }
+  .sm\:py-4{
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
   .sm\:text-start{
     text-align: start !important;
+  }
+  .sm\:text-3xl{
+    font-size: 1.875rem !important;
+    line-height: 2.25rem !important;
+  }
+  .sm\:text-base{
+    font-size: 1rem !important;
+    line-height: 1.5rem !important;
+  }
+  .sm\:text-lg{
+    font-size: 1.125rem !important;
+    line-height: 1.75rem !important;
+  }
+  .sm\:text-sm{
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+  }
+  .sm\:text-xl{
+    font-size: 1.25rem !important;
+    line-height: 1.75rem !important;
   }
 }
 @media (min-width: 768px){
@@ -2638,6 +2700,9 @@ p{
   .md\:mt-6{
     margin-top: 1.5rem !important;
   }
+  .md\:mb-8{
+    margin-bottom: 2rem !important;
+  }
   .md\:block{
     display: block !important;
   }
@@ -2647,8 +2712,14 @@ p{
   .md\:h-80{
     height: 20rem !important;
   }
+  .md\:h-32{
+    height: 8rem !important;
+  }
   .md\:min-h-\[600px\]{
     min-height: 600px !important;
+  }
+  .md\:w-32{
+    width: 8rem !important;
   }
   .md\:grid-cols-2{
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -2743,6 +2814,12 @@ p{
   }
 }
 @media (min-width: 1024px){
+  .lg\:sticky{
+    position: sticky !important;
+  }
+  .lg\:top-24{
+    top: 6rem !important;
+  }
   .lg\:col-span-1{
     grid-column: span 1 / span 1 !important;
   }
