@@ -156,7 +156,7 @@ const Hero = () => {
                 <div className="container relative z-10 px-4 md:px-0">
 
                     {/* Carousel de textes avec fond bleu */}
-                    <div className="bg-blue-600 py-1 md:py-2 rounded-2xl mt-5">
+                    <div className="bg-[#17243A] py-1 md:py-2 mt-5">
                         <div className="container px-4 md:px-0">
                             <div className="flex items-center justify-center">
                                 <div className="relative w-full max-w-4xl overflow-hidden h-8 md:h-10">
@@ -184,7 +184,7 @@ const Hero = () => {
                                                 onClick={() => setAnnouncementIndex(index)}
                                                 className={`h-1.5 rounded-full transition-all duration-300 ${announcementIndex === index
                                                         ? 'bg-white w-6'
-                                                        : 'bg-blue-400 w-1.5 hover:bg-blue-300'
+                                                        : 'bg-[#ff6b35] w-1.5 hover:bg-[#ff6b35]'
                                                     }`}
                                                 aria-label={`Aller à l'annonce ${index + 1}`}
                                             />

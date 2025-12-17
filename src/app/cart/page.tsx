@@ -55,12 +55,12 @@ const CartPage = () => {
         <>
             <Navigation />
             <section className="pt-24 pb-20 min-h-screen bg-white">
-                <div className="container pt-8">
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8">
+                <div className="container pt-8 px-4 sm:px-6">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-6 md:mb-8">
                         Mon panier ({cartItems.length} {cartItems.length > 1 ? 'articles' : 'article'})
                     </h1>
 
-                    <div className="grid lg:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
                         {/* Liste des articles */}
                         <div className="lg:col-span-2 space-y-4">
                             {cartItems.map((item) => {
@@ -70,11 +70,11 @@ const CartPage = () => {
                                 return (
                                     <div
                                         key={item.product.id}
-                                        className="bg-white rounded-lg border border-gray-200 p-6 flex gap-6"
+                                        className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:gap-6"
                                     >
                                         {/* Image */}
-                                        <Link href={`/products/${item.product.id}`} className="flex-shrink-0">
-                                            <div className="relative w-32 h-32 bg-gray-50 rounded-lg overflow-hidden">
+                                        <Link href={`/products/${item.product.id}`} className="flex-shrink-0 self-center sm:self-start">
+                                            <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 bg-gray-50 rounded-lg overflow-hidden">
                                                 {item.product.discount > 0 && (
                                                     <div className="absolute top-2 left-2 z-10 bg-[#ff6b35] text-white text-xs font-bold px-2 py-1 rounded">
                                                         -{item.product.discount}%
@@ -89,14 +89,14 @@ const CartPage = () => {
                                         </Link>
 
                                         {/* Informations */}
-                                        <div className="flex-1 flex flex-col justify-between">
-                                            <div>
+                                        <div className="flex-1 flex flex-col justify-between min-w-0">
+                                            <div className="flex-1">
                                                 <Link href={`/products/${item.product.id}`}>
-                                                    <h3 className="text-lg font-semibold text-gray-900 mb-2 hover:text-[#ff6b35] transition-colors">
+                                                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-2 hover:text-[#ff6b35] transition-colors line-clamp-2">
                                                         {item.product.name}
                                                     </h3>
                                                 </Link>
-                                                <p className="text-sm text-gray-600 mb-2">
+                                                <p className="text-xs sm:text-sm text-gray-600 mb-2">
                                                     {item.product.brand} • {item.product.category}
                                                 </p>
                                                 {/* Prix retiré */}
@@ -108,8 +108,8 @@ const CartPage = () => {
                                             </div>
 
                                             {/* Contrôles de quantité */}
-                                            <div className="flex items-center justify-between mt-4">
-                                                <div className="flex items-center gap-3">
+                                            <div className="flex items-center justify-between mt-4 flex-wrap gap-3">
+                                                <div className="flex items-center gap-2 sm:gap-3">
                                                     <button
                                                         onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
                                                         disabled={isMinQuantity}
@@ -122,9 +122,9 @@ const CartPage = () => {
                                                     >
                                                         <IconifyIcon icon="lucide:minus" className="h-4 w-4" />
                                                     </button>
-                                                    <span className="text-lg font-semibold text-gray-900 min-w-[3rem] text-center">
+                                                    <div className="text-base sm:text-lg font-semibold text-gray-900 min-w-[2.5rem] sm:min-w-[3rem] text-center">
                                                         {item.quantity}
-                                                    </span>
+                                                    </div>
                                                     <button
                                                         onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
                                                         className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100 transition-colors"
@@ -135,17 +135,12 @@ const CartPage = () => {
                                                 </div>
                                                 <button
                                                     onClick={() => removeFromCart(item.product.id)}
-                                                    className="text-red-600 hover:text-red-700 transition-colors flex items-center gap-2"
+                                                    className="text-red-600 hover:text-red-700 transition-colors flex items-center gap-1 sm:gap-2"
                                                 >
-                                                    <IconifyIcon icon="lucide:trash-2" className="h-5 w-5" />
-                                                    <span className="text-sm font-medium">Supprimer</span>
+                                                    <IconifyIcon icon="lucide:trash-2" className="h-4 w-4 sm:h-5 sm:w-5" />
+                                                    <span className="text-xs sm:text-sm font-medium hidden xs:inline">Supprimer</span>
                                                 </button>
                                             </div>
-                                        </div>
-
-                                        {/* Prix total pour cet article - retiré */}
-                                        <div className="flex flex-col items-end justify-between">
-                                            {/* Prix retiré */}
                                         </div>
                                     </div>
                                 )
@@ -155,9 +150,9 @@ const CartPage = () => {
                             <div className="flex justify-end">
                                 <button
                                     onClick={clearCart}
-                                    className="text-red-600 hover:text-red-700 transition-colors flex items-center gap-2 font-medium"
+                                    className="text-red-600 hover:text-red-700 transition-colors flex items-center gap-2 font-medium text-sm sm:text-base"
                                 >
-                                    <IconifyIcon icon="lucide:trash-2" className="h-5 w-5" />
+                                    <IconifyIcon icon="lucide:trash-2" className="h-4 w-4 sm:h-5 sm:w-5" />
                                     Vider le panier
                                 </button>
                             </div>
@@ -165,28 +160,28 @@ const CartPage = () => {
 
                         {/* Résumé de commande */}
                         <div className="lg:col-span-1">
-                            <div className="bg-white rounded-lg border border-gray-200 p-6 sticky top-24">
-                                <h2 className="text-xl font-bold text-gray-900 mb-6">
+                            <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 lg:sticky lg:top-24">
+                                <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">
                                     Résumé de commande
                                 </h2>
 
-                                <div className="space-y-4 mb-6">
+                                <div className="space-y-4 mb-4 sm:mb-6">
                                     {/* Résumé de commande - Prix retirés */}
                                     <div className="border-t border-gray-200 pt-4">
-                                        <p className="text-gray-600 text-center">
+                                        <p className="text-sm sm:text-base text-gray-600 text-center">
                                             Demandez un devis personnalisé pour vos articles
                                         </p>
                                     </div>
                                 </div>
 
-                                <button className="w-full bg-[#ff6b35] hover:bg-[#ff6b35] text-white py-4 px-6 rounded-lg transition-colors font-semibold text-lg flex items-center justify-center gap-2 mb-4">
-                                    <IconifyIcon icon="lucide:file-text" className="h-5 w-5" />
+                                <button className="w-full bg-[#ff6b35] hover:bg-[#ff6b35] text-white py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-colors font-semibold text-base sm:text-lg flex items-center justify-center gap-2 mb-4">
+                                    <IconifyIcon icon="lucide:file-text" className="h-4 w-4 sm:h-5 sm:w-5" />
                                     Demander un devis
                                 </button>
 
                                 <Link
                                     href="/products"
-                                    className="block text-center text-gray-600 hover:text-[#ff6b35] transition-colors font-medium"
+                                    className="block text-center text-sm sm:text-base text-gray-600 hover:text-[#ff6b35] transition-colors font-medium"
                                 >
                                     Continuer les achats
                                 </Link>
