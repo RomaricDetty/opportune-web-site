@@ -43,6 +43,8 @@ const NavigationContent = () => {
     const isTelephonesActive = isOthersPage && category === 'telephones';
     const isMobiliersActive = isOthersPage && category === 'mobiliers';
     const isAccessoiresActive = isOthersPage && category === 'accessoires';
+    const isAboutPage = pathname === '/about';
+    const isAccountPage = pathname === '/account';
 
     return (
         <>
@@ -129,7 +131,7 @@ const NavigationContent = () => {
                                         className="nav-link inline-flex items-center text-base font-semibold py-1.5 px-3"
                                         href={isHomePage ? "#products" : "/#products"}
                                     >
-                                        Electroménager
+                                        Nos produits
                                     </a>
                                 </li>
                                 <li className={`nav-item mx-2 transition-all duration-300 hover:text-primary [&.active]:!text-primary text-gray-800 [&.active]:text-primary ${isTelephonesActive ? 'active' : ''}`}>
@@ -137,25 +139,25 @@ const NavigationContent = () => {
                                         href="/others?category=telephones"
                                         className="nav-link inline-flex items-center text-base font-semibold py-1.5 px-3"
                                     >
-                                        Telephones
+                                        Meilleurs ventes
                                     </Link>
                                 </li>
                                 
-                                <li className={`nav-item mx-2 transition-all duration-300 hover:text-primary [&.active]:!text-primary text-gray-800 [&.active]:text-primary ${isMobiliersActive ? 'active' : ''}`}>
+                                <li className={`nav-item mx-2 transition-all duration-300 hover:text-primary [&.active]:!text-primary text-gray-800 [&.active]:text-primary ${isAboutPage ? 'active' : ''}`}>
                                     <Link
-                                        href="/others?category=mobiliers"
+                                        href="/about"
                                         className="nav-link inline-flex items-center text-base font-semibold py-1.5 px-3"
                                     >
-                                        Mobiliers
+                                        Qui sommes-nous ?
                                     </Link>
                                 </li>
 
-                                <li className={`nav-item mx-2 transition-all duration-300 hover:text-primary [&.active]:!text-primary text-gray-800 [&.active]:text-primary ${isAccessoiresActive ? 'active' : ''}`}>
+                                <li className={`nav-item mx-2 transition-all duration-300 hover:text-primary [&.active]:!text-primary text-gray-800 [&.active]:text-primary ${isAccountPage ? 'active' : ''}`}>
                                     <Link
-                                        href="/others?category=accessoires"
+                                        href="/account"
                                         className="nav-link inline-flex items-center text-base font-semibold py-1.5 px-3"
                                     >
-                                        Accessoires
+                                        Mon compte
                                     </Link>
                                 </li>
                                 
@@ -164,7 +166,7 @@ const NavigationContent = () => {
                                         className="nav-link inline-flex items-center text-base font-semibold py-1.5 px-3"
                                         href={isHomePage ? "#contact" : "/#contact"}
                                     >
-                                        Demande de devis
+                                        Contactez-nous
                                     </a>
                                 </li>
                             </ul>

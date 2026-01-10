@@ -19,10 +19,10 @@ const Product = () => {
             <div className="container">
                 <div className="max-w-2xl mx-auto text-center">
                     <h2 className="text-3xl md:text-4xl/tight font-semibold text-black mt-4">
-                        Découvrez nos produits électroménager
+                        Découvrez nos produits
                     </h2>
                     <p className="text-base font-medium mt-4 text-muted">
-                        Découvrez nos produits d'électroménager de qualité à des prix imbattables.
+                        Découvrez nos produits de qualité à des prix imbattables.
                         Un processus simple et rapide pour recevoir vos commandes dans les meilleurs délais.
                     </p>
                 </div>
@@ -40,7 +40,7 @@ const Product = () => {
                         href="/products"
                         className="px-8 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition-colors inline-flex items-center gap-2"
                     >
-                        Voir tous les produits électroménager
+                        Voir tous les produits
                         <IconifyIcon
                             icon="lucide:arrow-right"
                             className="h-5 w-5"

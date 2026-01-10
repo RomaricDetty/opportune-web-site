@@ -55,6 +55,25 @@ const CATEGORY_FAMILIES = {
         'Fers à repasser',
         'Sèche-cheveux',
         'Petit électroménager'
+    ],
+    'Téléphonie': [
+        'Smartphones',
+        'Téléphones portables',
+        'Téléphones fixes',
+        'Accessoires téléphone'
+    ],
+    'Accessoires & Électronique': [
+        'Écouteurs',
+        'Casques audio',
+        'Haut-parleurs',
+        'Chargeurs',
+        'Câbles',
+        'Étuis et coques',
+        'Power banks',
+        'Montres connectées',
+        'Tablettes',
+        'Ordinateurs portables',
+        'Accessoires informatiques'
     ]
 }
 
@@ -69,7 +88,7 @@ const ProductsPage = () => {
     const [viewMode, setViewMode] = useState<ViewMode>('grid')
     const [currentPage, setCurrentPage] = useState<number>(1)
     const [isFiltersOpen, setIsFiltersOpen] = useState<boolean>(false)
-    const [expandedFamilies, setExpandedFamilies] = useState<Set<string>>(new Set(['Gros électroménager', 'Petit électroménager']))
+    const [expandedFamilies, setExpandedFamilies] = useState<Set<string>>(new Set(['Gros électroménager', 'Petit électroménager', 'Téléphonie', 'Accessoires & Électronique']))
     
     // Référence pour le scroll vers le haut lors du changement de page
     const productsSectionRef = useRef<HTMLElement>(null)
@@ -431,7 +450,7 @@ const ProductsPage = () => {
                     {/* En-tête avec titre et options de vue */}
                     <div className="pt-8 flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                         <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-                            Produits d'électroménager
+                            Nos produits
                         </h1>
                         <div className="flex items-center gap-4">
                             {/* Options de vue */}

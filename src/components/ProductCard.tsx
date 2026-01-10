@@ -101,7 +101,26 @@ const ProductCard = ({ product, viewMode = 'grid', productType = 'electromenager
                         </div>
 
                         <div className="flex items-center justify-between">
-                            {/* Prix retiré */}
+                            {/* Prix */}
+                            <div className="flex flex-col">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xl font-bold text-[#ff6b35]">
+                                        {formatPrice(product.currentPrice)}
+                                    </span>
+                                    {product.oldPrice > product.currentPrice && (
+                                        <span className="text-sm text-gray-500 line-through">
+                                            {formatPrice(product.oldPrice)}
+                                        </span>
+                                    )}
+                                </div>
+                                {/* Rating */}
+                                <div className="flex items-center gap-1 mt-1">
+                                    {renderStars(product.rating)}
+                                    <span className="text-xs text-gray-500 ml-1">
+                                        ({product.rating})
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </Link>
@@ -165,9 +184,25 @@ const ProductCard = ({ product, viewMode = 'grid', productType = 'electromenager
                         </p>
                     )}
 
-                    {/* Prix retiré */}
+                    {/* Prix */}
                     <div className="mb-3">
-                        {/* Section prix supprimée */}
+                        <div className="flex items-center gap-2 mb-2">
+                            <span className="text-xl font-bold text-[#ff6b35]">
+                                {formatPrice(product.currentPrice)}
+                            </span>
+                            {product.oldPrice > product.currentPrice && (
+                                <span className="text-sm text-gray-500 line-through">
+                                    {formatPrice(product.oldPrice)}
+                                </span>
+                            )}
+                        </div>
+                        {/* Rating */}
+                        <div className="flex items-center gap-1">
+                            {renderStars(product.rating)}
+                            <span className="text-xs text-gray-500 ml-1">
+                                ({product.rating})
+                            </span>
+                        </div>
                     </div>
                 </div>
             </Link>

@@ -4,6 +4,8 @@ import type { ChildrenType } from '@/types/other'
 import { usePathname } from 'next/navigation'
 import { Fragment, useEffect } from 'react'
 import { CartProvider } from '@/context/useCartContext'
+import { AuthProvider } from '@/context/useAuthContext'
+import { OrdersProvider } from '@/context/useOrdersContext'
 
 const AppProviders = ({ children }: ChildrenType) => {
     const pathname = usePathname()
@@ -42,9 +44,13 @@ const AppProviders = ({ children }: ChildrenType) => {
 
     return (
         <Fragment>
-            <CartProvider>
-                {children}
-            </CartProvider>
+            <AuthProvider>
+                <CartProvider>
+                    <OrdersProvider>
+                        {children}
+                    </OrdersProvider>
+                </CartProvider>
+            </AuthProvider>
         </Fragment>
     )
 }

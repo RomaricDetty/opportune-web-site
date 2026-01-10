@@ -11,11 +11,11 @@ const Contact = () => {
                     <div>
                         <div>
                             <span className="text-sm text-primary uppercase font-semibold tracking-wider text-default-950 mb-6">
-                                Demande de devis
+                                Laissez-nous un message
                             </span>
                         </div>
                         <h2 className="text-3xl md:text-4xl/tight font-semibold mt-4">
-                            Demande de devis
+                            Contactez-nous
                         </h2>
                         {/* <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-start mt-10">
                             <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
@@ -47,12 +47,6 @@ const Contact = () => {
                                 <h5 className="text-base text-muted font-medium mb-1">
                                     contact@shop-electro.sn
                                 </h5>
-                                <a
-                                    href="#"
-                                    className="text-xs text-primary font-bold uppercase"
-                                >
-                                    Demande de devis
-                                </a>
                             </div>
                         </div>
                     </div>

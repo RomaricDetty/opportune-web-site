@@ -87,7 +87,7 @@ const ProductDetailPage = () => {
                             <IconifyIcon icon="lucide:chevron-right" className="h-4 w-4" />
                             <li>
                                 <Link href="/products" className="hover:text-[#ff6b35] transition-colors">
-                                    Produits électroménagers
+                                    Nos produits
                                 </Link>
                             </li>
                             <IconifyIcon icon="lucide:chevron-right" className="h-4 w-4" />

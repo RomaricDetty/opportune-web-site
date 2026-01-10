@@ -17,7 +17,7 @@ export interface ProductData {
 }
 
 /**
- * Données des produits d'électroménager
+ * Données des produits (électroménager, téléphonie, accessoires, etc.)
  */
 export const productsData: ProductData[] = [
     {
@@ -256,6 +256,279 @@ export const productsData: ProductData[] = [
         inStock: true,
         rating: 4.5,
         description: 'Machine à laver hublot avec technologie vapeur',
+        minQuantity: 1
+    },
+    // Téléphonie
+    {
+        id: 18,
+        name: 'Samsung Galaxy A54 128GB',
+        brand: 'Samsung',
+        category: 'Smartphones',
+        image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400',
+        currentPrice: 180000,
+        oldPrice: 200000,
+        discount: 10,
+        inStock: true,
+        rating: 4.6,
+        description: 'Smartphone Android avec écran AMOLED 6.4" et triple caméra',
+        minQuantity: 1
+    },
+    {
+        id: 19,
+        name: 'iPhone 13 128GB',
+        brand: 'Apple',
+        category: 'Smartphones',
+        image: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400',
+        currentPrice: 450000,
+        oldPrice: 500000,
+        discount: 10,
+        inStock: true,
+        rating: 4.8,
+        description: 'iPhone avec puce A15 Bionic et système de caméra double',
+        minQuantity: 1
+    },
+    {
+        id: 20,
+        name: 'Xiaomi Redmi Note 12 128GB',
+        brand: 'Xiaomi',
+        category: 'Smartphones',
+        image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400',
+        currentPrice: 120000,
+        oldPrice: 140000,
+        discount: 14,
+        inStock: true,
+        rating: 4.4,
+        description: 'Smartphone avec écran AMOLED 6.67" et charge rapide 33W',
+        minQuantity: 1
+    },
+    {
+        id: 21,
+        name: 'Téléphone fixe sans fil Panasonic',
+        brand: 'Panasonic',
+        category: 'Téléphones fixes',
+        image: 'https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=400',
+        currentPrice: 35000,
+        oldPrice: 40000,
+        discount: 12,
+        inStock: true,
+        rating: 4.2,
+        description: 'Téléphone DECT avec écran LCD et répondeur intégré',
+        minQuantity: 1
+    },
+    // Accessoires téléphone
+    {
+        id: 22,
+        name: 'Étui de protection iPhone 13',
+        brand: 'Spigen',
+        category: 'Étuis et coques',
+        image: 'https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400',
+        currentPrice: 15000,
+        oldPrice: 20000,
+        discount: 25,
+        inStock: true,
+        rating: 4.5,
+        description: 'Coque de protection renforcée avec support kickstand',
+        minQuantity: 1
+    },
+    {
+        id: 23,
+        name: 'Chargeur rapide USB-C 30W',
+        brand: 'Anker',
+        category: 'Chargeurs',
+        image: 'https://images.unsplash.com/photo-1609091839311-d5365f9ff56b?w=400',
+        currentPrice: 12000,
+        oldPrice: 15000,
+        discount: 20,
+        inStock: true,
+        rating: 4.7,
+        description: 'Chargeur rapide avec technologie Power Delivery',
+        minQuantity: 1
+    },
+    {
+        id: 24,
+        name: 'Câble USB-C vers USB-C 2m',
+        brand: 'Belkin',
+        category: 'Câbles',
+        image: 'https://images.unsplash.com/photo-1609091839311-d5365f9ff56b?w=400',
+        currentPrice: 8000,
+        oldPrice: 10000,
+        discount: 20,
+        inStock: true,
+        rating: 4.3,
+        description: 'Câble de charge et transfert de données haute vitesse',
+        minQuantity: 1
+    },
+    {
+        id: 25,
+        name: 'Power Bank 20000mAh',
+        brand: 'Xiaomi',
+        category: 'Power banks',
+        image: 'https://images.unsplash.com/photo-1609091839311-d5365f9ff56b?w=400',
+        currentPrice: 25000,
+        oldPrice: 30000,
+        discount: 16,
+        inStock: true,
+        rating: 4.6,
+        description: 'Batterie externe avec charge rapide et double port USB',
+        minQuantity: 1
+    },
+    // Audio
+    {
+        id: 26,
+        name: 'Écouteurs Bluetooth AirPods Pro',
+        brand: 'Apple',
+        category: 'Écouteurs',
+        image: 'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=400',
+        currentPrice: 180000,
+        oldPrice: 200000,
+        discount: 10,
+        inStock: true,
+        rating: 4.8,
+        description: 'Écouteurs sans fil avec réduction de bruit active',
+        minQuantity: 1
+    },
+    {
+        id: 27,
+        name: 'Casque audio Sony WH-1000XM4',
+        brand: 'Sony',
+        category: 'Casques audio',
+        image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400',
+        currentPrice: 220000,
+        oldPrice: 250000,
+        discount: 12,
+        inStock: true,
+        rating: 4.9,
+        description: 'Casque sans fil avec réduction de bruit premium',
+        minQuantity: 1
+    },
+    {
+        id: 28,
+        name: 'Haut-parleur Bluetooth JBL Flip 6',
+        brand: 'JBL',
+        category: 'Haut-parleurs',
+        image: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400',
+        currentPrice: 65000,
+        oldPrice: 75000,
+        discount: 13,
+        inStock: true,
+        rating: 4.5,
+        description: 'Enceinte portable étanche avec son stéréo puissant',
+        minQuantity: 1
+    },
+    // Montres connectées
+    {
+        id: 29,
+        name: 'Apple Watch Series 8',
+        brand: 'Apple',
+        category: 'Montres connectées',
+        image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400',
+        currentPrice: 280000,
+        oldPrice: 320000,
+        discount: 12,
+        inStock: true,
+        rating: 4.7,
+        description: 'Montre connectée avec suivi santé et GPS intégré',
+        minQuantity: 1
+    },
+    {
+        id: 30,
+        name: 'Samsung Galaxy Watch 5',
+        brand: 'Samsung',
+        category: 'Montres connectées',
+        image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400',
+        currentPrice: 150000,
+        oldPrice: 180000,
+        discount: 16,
+        inStock: true,
+        rating: 4.6,
+        description: 'Montre intelligente avec suivi fitness et autonomie longue durée',
+        minQuantity: 1
+    },
+    // Tablettes
+    {
+        id: 31,
+        name: 'iPad Air 64GB',
+        brand: 'Apple',
+        category: 'Tablettes',
+        image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400',
+        currentPrice: 380000,
+        oldPrice: 420000,
+        discount: 9,
+        inStock: true,
+        rating: 4.8,
+        description: 'Tablette avec écran Retina 10.9" et puce M1',
+        minQuantity: 1
+    },
+    {
+        id: 32,
+        name: 'Samsung Galaxy Tab S8',
+        brand: 'Samsung',
+        category: 'Tablettes',
+        image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400',
+        currentPrice: 320000,
+        oldPrice: 360000,
+        discount: 11,
+        inStock: true,
+        rating: 4.6,
+        description: 'Tablette Android avec stylet S Pen inclus',
+        minQuantity: 1
+    },
+    // Ordinateurs portables
+    {
+        id: 33,
+        name: 'MacBook Air M2 256GB',
+        brand: 'Apple',
+        category: 'Ordinateurs portables',
+        image: 'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=400',
+        currentPrice: 950000,
+        oldPrice: 1100000,
+        discount: 13,
+        inStock: true,
+        rating: 4.9,
+        description: 'Ordinateur portable ultra-fin avec puce M2 et écran Retina 13.3"',
+        minQuantity: 1
+    },
+    {
+        id: 34,
+        name: 'HP Pavilion 15.6"',
+        brand: 'HP',
+        category: 'Ordinateurs portables',
+        image: 'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=400',
+        currentPrice: 450000,
+        oldPrice: 500000,
+        discount: 10,
+        inStock: true,
+        rating: 4.4,
+        description: 'Laptop avec processeur Intel Core i5 et 8GB RAM',
+        minQuantity: 1
+    },
+    // Accessoires informatiques
+    {
+        id: 35,
+        name: 'Souris sans fil Logitech MX Master 3',
+        brand: 'Logitech',
+        category: 'Accessoires informatiques',
+        image: 'https://images.unsplash.com/photo-1527814050087-3793815479db?w=400',
+        currentPrice: 55000,
+        oldPrice: 65000,
+        discount: 15,
+        inStock: true,
+        rating: 4.7,
+        description: 'Souris ergonomique avec défilement ultra-rapide',
+        minQuantity: 1
+    },
+    {
+        id: 36,
+        name: 'Clavier mécanique RGB',
+        brand: 'Corsair',
+        category: 'Accessoires informatiques',
+        image: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=400',
+        currentPrice: 75000,
+        oldPrice: 90000,
+        discount: 16,
+        inStock: true,
+        rating: 4.5,
+        description: 'Clavier gaming avec switches mécaniques et rétroéclairage RGB',
         minQuantity: 1
     }
 ]
