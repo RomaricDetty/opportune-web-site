@@ -7,6 +7,7 @@ import IconifyIcon from '@/components/wrappers/IconifyIcon'
 import { ProductData, formatPrice } from '@/data/products'
 import { otherProductsData } from '@/data/others'
 import ProductCard from '@/components/ProductCard'
+import { articleService } from '@/services/articleService'
 
 type SortOption = 'popular' | 'cheapest'
 type ViewMode = 'grid' | 'list'
@@ -65,9 +66,10 @@ const isCategoryAllowed = (slug: string | null): boolean => {
 const OthersPageContent = () => {
     const searchParams = useSearchParams()
     const categorySlug = searchParams.get('category')
+    const categoryUid = searchParams.get('uid') || ''
     const categoryFromUrl = categorySlug ? slugToCategoryName(categorySlug) : null
     const isCategoryValid = isCategoryAllowed(categorySlug)
-
+    const [products, setProducts] = useState<any[]>([]);
     const [selectedBrands, setSelectedBrands] = useState<string[]>([])
     const [selectedRatings, setSelectedRatings] = useState<number[]>([])
     const [sortOption, setSortOption] = useState<SortOption>('popular')
@@ -80,54 +82,33 @@ const OthersPageContent = () => {
 
     // Extraire toutes les marques uniques pour la catégorie sélectionnée (ou toutes si aucune catégorie)
     const brands = useMemo(() => {
-        // Si la catégorie n'est pas valide, retourner un tableau vide
-        if (categorySlug && !isCategoryValid) {
-            return []
-        }
+    const uniqueBrands = Array.from(
+        new Map(
+            products
+                .map(p => p.marque)
+                .filter(Boolean)
+                .map(marque => [marque.id, marque]) // dédoublonner par id
+        ).values()
+    );
 
-        const productsToUse = categoryFromUrl 
-            ? otherProductsData.filter(p => p.category === categoryFromUrl)
-            : otherProductsData
-        
-        // Récupérer les marques depuis les produits
-        const brandsFromProducts = Array.from(new Set(productsToUse.map(p => p.brand)))
-        
-        // Si on a une catégorie et qu'il y a des marques par défaut pour cette catégorie
-        if (categorySlug && DEFAULT_BRANDS_BY_CATEGORY[categorySlug]) {
-            const defaultBrands = DEFAULT_BRANDS_BY_CATEGORY[categorySlug]
-            // Combiner les marques des produits avec les marques par défaut
-            const allBrands = Array.from(new Set([...brandsFromProducts, ...defaultBrands]))
-            
-            return allBrands.sort().map(brand => ({
-                name: brand,
-                count: productsToUse.filter(p => p.brand === brand).length || 0
-            }))
-        }
-        
-        // Sinon, utiliser uniquement les marques des produits
-        return brandsFromProducts.sort().map(brand => ({
-            name: brand,
-            count: productsToUse.filter(p => p.brand === brand).length
-        }))
-    }, [categoryFromUrl, categorySlug, isCategoryValid])
+    return uniqueBrands
+        .sort((a, b) => a.libelle.localeCompare(b.libelle))
+        .map(marque => ({
+            id: marque.id,
+            name: marque.libelle,       // ✅ string, pas l'objet entier
+            logo: marque.logo,
+            count: products.filter(p => p.marque?.id === marque.id).length
+        }));
+}, [products, categorySlug]);
 
     // Filtrer les produits
     const filteredProducts = useMemo(() => {
-        // Si la catégorie n'est pas valide, retourner un tableau vide
-        if (categorySlug && !isCategoryValid) {
-            return []
-        }
-
-        let filtered = otherProductsData
-
-        // Filtre par catégorie depuis l'URL
-        if (categoryFromUrl) {
-            filtered = filtered.filter(p => p.category === categoryFromUrl)
-        }
+       
+        let filtered = products
 
         // Filtre par marques
         if (selectedBrands.length > 0) {
-            filtered = filtered.filter(p => selectedBrands.includes(p.brand))
+            filtered = filtered.filter(p => selectedBrands.includes(p.marque?.id));
         }
 
         // Filtre par ratings
@@ -142,11 +123,11 @@ const OthersPageContent = () => {
             filtered = [...filtered].sort((a, b) => a.currentPrice - b.currentPrice)
         } else {
             // Popular (par défaut, tri par rating décroissant)
-            filtered = [...filtered].sort((a, b) => b.rating - a.rating)
+            filtered = [...filtered].sort((a, b) => (b.nombreVues ?? 0) - (a.nombreVues ?? 0))
         }
 
         return filtered
-    }, [categoryFromUrl, selectedBrands, selectedRatings, sortOption, categorySlug, isCategoryValid])
+    }, [selectedBrands, selectedRatings, sortOption, categorySlug, products])
 
     // Calculer la pagination
     const totalPages = useMemo(() => {
@@ -160,11 +141,13 @@ const OthersPageContent = () => {
         return filteredProducts.slice(startIndex, endIndex)
     }, [filteredProducts, currentPage])
 
+
+
     // Réinitialiser les marques sélectionnées quand la catégorie change
     useEffect(() => {
         setSelectedBrands([])
         setCurrentPage(1)
-    }, [categoryFromUrl])
+    }, [products])
 
     // Réinitialiser à la page 1 quand les autres filtres changent
     useEffect(() => {
@@ -173,26 +156,27 @@ const OthersPageContent = () => {
 
     // Gérer les filtres appliqués
     const appliedFilters = useMemo(() => {
-        const filters: Array<{ type: string; value: string; onRemove: () => void }> = []
-        
-        selectedBrands.forEach(brand => {
-            filters.push({
-                type: 'Marque',
-                value: brand,
-                onRemove: () => setSelectedBrands(prev => prev.filter(b => b !== brand))
-            })
-        })
+    const filters: Array<{ type: string; value: string; onRemove: () => void }> = []
 
-        selectedRatings.forEach(rating => {
-            filters.push({
-                type: 'Note',
-                value: `${rating} étoiles`,
-                onRemove: () => setSelectedRatings(prev => prev.filter(r => r !== rating))
-            })
+    selectedBrands.forEach(brandId => {
+        const brand = brands.find(b => b.id === brandId) // ✅ retrouver l'objet via l'id
+        filters.push({
+            type: 'Marque',
+            value: brand?.name ?? brandId, // ✅ afficher le libelle lisible
+            onRemove: () => setSelectedBrands(prev => prev.filter(b => b !== brandId)) // ✅ supprimer par id
         })
+    })
 
-        return filters
-    }, [selectedBrands, selectedRatings])
+    selectedRatings.forEach(rating => {
+        filters.push({
+            type: 'Note',
+            value: `${rating} étoiles`,
+            onRemove: () => setSelectedRatings(prev => prev.filter(r => r !== rating))
+        })
+    })
+
+    return filters
+}, [selectedBrands, selectedRatings, brands])
 
     // Empêcher le scroll du body quand le drawer est ouvert
     useEffect(() => {
@@ -206,13 +190,17 @@ const OthersPageContent = () => {
         }
     }, [isFiltersOpen])
 
-    const toggleBrand = (brand: string) => {
-        setSelectedBrands(prev =>
-            prev.includes(brand)
-                ? prev.filter(b => b !== brand)
-                : [...prev, brand]
-        )
-    }
+    useEffect(() => {
+        fetchArticlesByCategory()
+    }, [])
+
+    const toggleBrand = (brandId: string) => {
+    setSelectedBrands(prev =>
+        prev.includes(brandId)
+            ? prev.filter(b => b !== brandId)
+            : [...prev, brandId]
+    )
+}
 
     const toggleRating = (rating: number) => {
         setSelectedRatings(prev =>
@@ -288,6 +276,16 @@ const OthersPageContent = () => {
         }, 100) // Petit délai pour laisser le temps au DOM de se mettre à jour
     }
 
+    const fetchArticlesByCategory = async () => {
+          try {
+            if (!categorySlug) return;
+            const data = await articleService.getByParams('idCategory', categoryUid);
+            setProducts(Array.isArray(data) ? data : [data]);
+          } catch (err) {
+            console.error(err);
+          }
+    };
+
     /**
      * Composant réutilisable pour afficher les filtres (marques uniquement)
      */
@@ -298,16 +296,16 @@ const OthersPageContent = () => {
                 <div className="mb-8">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Marques</h3>
                     <div className="space-y-3">
-                        {brands.map((brand) => (
+                        {brands.map((brand, index) => (
                             <label
-                                key={brand.name}
+                                key={index}
                                 className="flex items-center justify-between cursor-pointer hover:text-[#ff6b35] transition-colors group"
                             >
                                 <div className="flex items-center gap-2">
                                     <input
                                         type="checkbox"
-                                        checked={selectedBrands.includes(brand.name)}
-                                        onChange={() => toggleBrand(brand.name)}
+                                        checked={selectedBrands.includes(brand.id)}
+                                        onChange={() => toggleBrand(brand.id)}
                                         className="w-4 h-4 text-[#ff6b35] rounded border-gray-300 focus:ring-[#ff6b35]"
                                     />
                                     <span className="text-sm text-gray-700 group-hover:text-[#ff6b35]">{brand.name}</span>
@@ -322,7 +320,7 @@ const OthersPageContent = () => {
     )
 
     // Si la catégorie n'est pas valide ou absente, afficher le message d'erreur
-    if (!categorySlug || !isCategoryValid) {
+    if (!categorySlug) {
         return (
             <>
                 <Navigation />
@@ -361,7 +359,7 @@ const OthersPageContent = () => {
                     {/* En-tête avec titre et options de vue */}
                     <div className="pt-8 flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                         <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-                            {categoryFromUrl ? categoryFromUrl : 'Autres produits'}
+                            {categorySlug}
                         </h1>
                         <div className="flex items-center gap-4">
                             {/* Options de vue */}

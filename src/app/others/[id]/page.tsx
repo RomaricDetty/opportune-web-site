@@ -1,5 +1,6 @@
 "use client"
-import React, { Suspense } from 'react'
+import React, { Suspense, useState, useCallback, useEffect, useMemo } from 'react'
+
 import { useParams, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Navigation from '@/components/Navigation'
@@ -8,6 +9,8 @@ import IconifyIcon from '@/components/wrappers/IconifyIcon'
 import { ProductData, formatPrice } from '@/data/products'
 import { useCartContext } from '@/context/useCartContext'
 import { otherProductsData } from '@/data/others'
+import { articleService } from '@/services/articleService'
+import type { Article } from '@/types/articles'
 
 /**
  * Génère un slug à partir du nom d'une catégorie
@@ -21,22 +24,69 @@ const generateCategorySlug = (categoryName: string): string => {
         .replace(/^-+|-+$/g, '') // Supprime les tirets en début et fin
 }
 
+
+
 /**
  * Composant interne qui utilise useSearchParams
  */
 const OtherProductDetailPageContent = () => {
     const params = useParams()
-    const searchParams = useSearchParams()
-    const productId = parseInt(params.id as string)
-    const { addToCart, isInCart } = useCartContext()
-    const inCart = isInCart(productId)
+const searchParams = useSearchParams()
+const productId = params.id as string
+const { addToCart, isInCart } = useCartContext()
 
-    // Récupérer le paramètre category depuis l'URL
-    const categorySlug = searchParams.get('category')
+const categorySlug = searchParams.get('category') || ''
 
-    // Trouver le produit
-    const product = otherProductsData.find(p => p.id === productId)
+// ✅ States pour l'article
+const [product, setProduct] = useState<Article | null>(null)
+const [loading, setLoading] = useState<boolean>(false)
+const [error, setError] = useState<string | null>(null)
+const [similarProducts, setSimilarProducts] = useState<Article[]>([])
 
+const inCart = isInCart(productId)
+
+// ✅ Récupérer l'article par son id
+useEffect(() => {
+    const fetchArticle = async () => {
+        try {
+            // setLoading(true)
+            
+
+            const data = await articleService.getByParams('id', productId)
+            setProduct(data)
+        } catch (err) {
+            console.error(err)
+            setError('Article introuvable')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    if (productId) fetchArticle()
+}, [productId])
+
+    useEffect(() => {
+    const fetchSimilarProducts = async () => {
+        if (!product) return
+
+        try {
+            // Récupérer par même catégorie
+            const data = await articleService.getByParams('idCategory', product.category.id)
+            
+            const filtered = Array.isArray(data) ? data : [data]
+            
+            setSimilarProducts(
+                filtered
+                    .filter(p => p.id !== product.id) // ✅ exclure l'article actuel
+                    .slice(0, 4)                       // ✅ limiter à 4 résultats
+            )
+        } catch (err) {
+            console.error('Erreur chargement produits similaires:', err)
+        }
+    }
+
+    fetchSimilarProducts()
+}, [product])
     // Si le produit n'existe pas
     if (!product) {
         return (
@@ -76,14 +126,13 @@ const OtherProductDetailPageContent = () => {
     // Déterminer l'URL de retour vers la catégorie
     // Si categorySlug est présent dans l'URL, l'utiliser
     // Sinon, générer le slug à partir de la catégorie du produit
-    const categoryBackUrl = categorySlug 
+    const categoryBackUrl = useMemo(() => {
+    if (!product) return '/others'
+    
+    return categorySlug
         ? `/others?category=${categorySlug}`
-        : `/others?category=${generateCategorySlug(product.category)}`
-
-    // Trouver des produits similaires (même catégorie ou même marque)
-    const similarProducts = otherProductsData
-        .filter(p => p.id !== product.id && (p.category === product.category || p.brand === product.brand))
-        .slice(0, 4)
+        : `/others?category=${generateCategorySlug(product.category.libelle)}`
+        }, [product, categorySlug])
 
     return (
         <>

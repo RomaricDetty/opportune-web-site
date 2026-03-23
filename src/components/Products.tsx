@@ -1,41 +1,65 @@
 "use client"
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import IconifyIcon from '@/components/wrappers/IconifyIcon'
-import { productsData } from '@/data/products'
+import { ProductData, productsData } from '@/data/products'
 import ProductCard from './ProductCard'
-
+import { articleService } from '@/services/articleService'
+import { Article } from '@/types/articles'
 /**
  * Composant Product - Affiche une sélection de produits (max 10)
  */
-const Product = () => {
+const Product = ({category, products, idCategory}: {category?: string; products: ProductData[]; idCategory:any}) => {
     // Prendre les 10 premiers produits
-    const products = useMemo(() => {
-        return productsData.slice(0, 10)
-    }, [])
+    
+
+    // const products = useMemo(() => {
+    //     return productsData.slice(0, 6)
+    // }, [])
+
+    const [loading, setLoading] = React.useState(true)
+    const [articles, setArticles] = React.useState<Article[]>([])
+
+    const fetchArticles = async () => {
+        try {
+            const response = await articleService.getAll()
+            setArticles(Array.isArray(response) ? response : [response])
+        } catch (error) {
+            console.error('Error fetching articles:', error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    // useEffect(() => {
+    //     fetchArticles()
+    // }, [])
 
     return (
-        <section id="products" className="py-20">
+        <section id="products" className="py-10">
             <div className="container">
-                <div className="max-w-2xl mx-auto text-center">
-                    <h2 className="text-3xl md:text-4xl/tight font-semibold text-black mt-4">
-                        Découvrez nos produits électroménager
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-gray-900 uppercase leading-tight">
+                        {category}
                     </h2>
-                    <p className="text-base font-medium mt-4 text-muted">
-                        Découvrez nos produits d'électroménager de qualité à des prix imbattables.
-                        Un processus simple et rapide pour recevoir vos commandes dans les meilleurs délais.
-                    </p>
+                    <Link
+                        href={`/others?category=${category}&uid=${idCategory}`}
+                        className="flex items-center gap-1 px-3 py-2 sm:px-4 sm:py-3 bg-orange-50 hover:bg-orange-100 text-orange-500 font-semibold text-xs sm:text-sm rounded-full transition-colors whitespace-nowrap"
+                    >
+                        Plus D'articles
+                        <IconifyIcon icon="lucide:chevron-right" className="h-3 w-3 sm:h-4 sm:w-4" />
+                    </Link>
                 </div>
 
                 {/* Grille de produits */}
-                <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6 md:gap-8 mt-12 md:mt-16">
-                    {products.map((product) => (
+                <div className="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-6 md:gap-8 mt-12 md:mt-12">
+                    {products?.map((product) => (
                         <ProductCard key={product.id} product={product} />
                     ))}
                 </div>
 
                 {/* Bouton "Voir tous les produits" */}
-                <div className="flex justify-center mt-12">
+                {/* <div className="flex justify-center mt-12">
                     <Link
                         href="/products"
                         className="px-8 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition-colors inline-flex items-center gap-2"
@@ -46,7 +70,7 @@ const Product = () => {
                             className="h-5 w-5"
                         />
                     </Link>
-                </div>
+                </div> */}
             </div>
         </section>
     )

@@ -1,5 +1,5 @@
 'use client'
-import { ProductData } from '@/data/products'
+import { Article } from '../types/articles' // ✅ Article depuis l'API au lieu de ProductData
 import {
     type ReactNode,
     createContext,
@@ -10,19 +10,19 @@ import {
 } from 'react'
 
 export interface CartItem {
-    product: ProductData
+    product: Article  // ✅ Article au lieu de ProductData
     quantity: number
 }
 
 interface CartContextType {
     cartItems: CartItem[]
-    addToCart: (product: ProductData, quantity?: number) => void
-    removeFromCart: (productId: number) => void
-    updateQuantity: (productId: number, quantity: number) => void
+    addToCart: (product: Article, quantity?: number) => void   // ✅
+    removeFromCart: (productId: string) => void
+    updateQuantity: (productId: string, quantity: number) => void
     clearCart: () => void
     getTotalItems: () => number
     getTotalPrice: () => number
-    isInCart: (productId: number) => boolean
+    isInCart: (productId: string) => boolean
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -39,15 +39,12 @@ function CartProvider({ children }: Readonly<{ children: ReactNode }>) {
     const [cartItems, setCartItems] = useState<CartItem[]>([])
     const [isClient, setIsClient] = useState(false)
 
-    // Vérifier si on est côté client
     useEffect(() => {
         setIsClient(true)
     }, [])
 
-    // Charger le panier depuis localStorage au montage (uniquement côté client)
     useEffect(() => {
         if (!isClient) return
-        
         const savedCart = localStorage.getItem('cart')
         if (savedCart) {
             try {
@@ -58,52 +55,45 @@ function CartProvider({ children }: Readonly<{ children: ReactNode }>) {
         }
     }, [isClient])
 
-    // Sauvegarder le panier dans localStorage à chaque changement (uniquement côté client)
     useEffect(() => {
         if (!isClient) return
-        
         localStorage.setItem('cart', JSON.stringify(cartItems))
     }, [cartItems, isClient])
 
-    // Obtenir la quantité minimale d'un produit (par défaut 1)
-    const getMinQuantity = (product: ProductData): number => {
-        return product.minQuantity || 1
+    // ✅ minQuantity depuis Article (adapter selon la structure de ton type Article)
+    const getMinQuantity = (product: Article): number => {
+        return product.quantite_minimale || 1
     }
 
-    const addToCart = (product: ProductData, quantity: number = 1) => {
+    const addToCart = (product: Article, quantity: number = 1) => {
         const minQuantity = getMinQuantity(product)
         const quantityToAdd = Math.max(quantity, minQuantity)
 
         setCartItems((prevItems) => {
             const existingItem = prevItems.find((item) => item.product.id === product.id)
-
             if (existingItem) {
-                // Si le produit existe déjà, augmenter la quantité
                 return prevItems.map((item) =>
                     item.product.id === product.id
                         ? { ...item, quantity: item.quantity + quantityToAdd }
                         : item
                 )
-            } else {
-                // Sinon, ajouter un nouvel article avec la quantité minimale
-                return [...prevItems, { product, quantity: quantityToAdd }]
             }
+            return [...prevItems, { product, quantity: quantityToAdd }]
         })
     }
 
-    const removeFromCart = (productId: number) => {
+    const removeFromCart = (productId: string) => {
         setCartItems((prevItems) =>
             prevItems.filter((item) => item.product.id !== productId)
         )
     }
 
-    const updateQuantity = (productId: number, quantity: number) => {
+    const updateQuantity = (productId: string, quantity: number) => {
         const item = cartItems.find((item) => item.product.id === productId)
         if (!item) return
 
         const minQuantity = getMinQuantity(item.product)
 
-        // Si la quantité est inférieure à la quantité minimale, supprimer l'article
         if (quantity < minQuantity) {
             removeFromCart(productId)
             return
@@ -116,24 +106,20 @@ function CartProvider({ children }: Readonly<{ children: ReactNode }>) {
         )
     }
 
-    const clearCart = () => {
-        setCartItems([])
-    }
+    const clearCart = () => setCartItems([])
 
-    const getTotalItems = () => {
-        return cartItems.reduce((total, item) => total + item.quantity, 0)
-    }
+    const getTotalItems = () =>
+        cartItems.reduce((total, item) => total + item.quantity, 0)
 
-    const getTotalPrice = () => {
-        return cartItems.reduce(
-            (total, item) => total + item.product.currentPrice * item.quantity,
+    // ✅ currentPrice → adapter selon ton type Article (ex: prix, price, currentPrice...)
+    const getTotalPrice = () =>
+        cartItems.reduce(
+            (total, item) => total + item.product.prix * item.quantity,
             0
         )
-    }
 
-    const isInCart = (productId: number) => {
-        return cartItems.some((item) => item.product.id === productId)
-    }
+    const isInCart = (productId: string) =>
+        cartItems.some((item) => item.product.id === productId)
 
     return (
         <CartContext.Provider

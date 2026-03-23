@@ -1,4 +1,4 @@
-// File: /Users/gueuromaric/Documents/PROJETS/Opportune/opportune-web-site/src/app/others/page.tsx
+// File: E:\ROMA\opportune-web-site\src\app\others\page.tsx
 import * as entry from '../../../../src/app/others/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

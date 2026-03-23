@@ -67,8 +67,9 @@ const ProductCard = ({ product, viewMode = 'grid', productType = 'electromenager
     }
 
     // Déterminer le chemin selon le type de produit
-    const productPath = productType === 'other' ? `/others/${product.id}` : `/products/${product.id}`
-
+    // const productPath = productType === 'other' ? `/others/${product.id}` : `/products/${product.id}`
+    const productPath = `/products/${product.id}`;
+    
     if (viewMode === 'list') {
         return (
             <div className="flex gap-4 bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
@@ -81,8 +82,8 @@ const ProductCard = ({ product, viewMode = 'grid', productType = 'electromenager
                             </div>
                         )}
                         <img
-                            src={product.image}
-                            alt={product.name}
+                            src={product.imagePrincipale}
+                            alt={product.libelle}
                             className="w-full h-full object-contain p-2"
                         />
                     </div>
@@ -91,7 +92,7 @@ const ProductCard = ({ product, viewMode = 'grid', productType = 'electromenager
                     <div className="flex-1 flex flex-col justify-between">
                         <div>
                             <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                                {product.name}
+                                {product.libelle}
                             </h3>
                             {product.description && (
                                 <p className="text-sm text-gray-600 mb-2">
@@ -145,8 +146,8 @@ const ProductCard = ({ product, viewMode = 'grid', productType = 'electromenager
                 {/* Image du produit */}
                 <div className="relative w-full h-64 flex items-center justify-center bg-gray-50 overflow-hidden">
                     <img
-                        src={product.image}
-                        alt={product.name}
+                        src={product.imagePrincipale}
+                        alt={product.libelle}
                         className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300"
                     />
                 </div>
@@ -155,7 +156,7 @@ const ProductCard = ({ product, viewMode = 'grid', productType = 'electromenager
                 <div className="p-4">
                     {/* Nom du produit */}
                     <h3 className="text-base font-semibold text-gray-900 mb-1 line-clamp-1">
-                        {product.name}
+                        {product.libelle}
                     </h3>
 
                     {/* Description */}
@@ -180,7 +181,7 @@ const ProductCard = ({ product, viewMode = 'grid', productType = 'electromenager
                         inCart 
                             ? 'bg-green-600 hover:bg-green-700' 
                             : 'bg-[#ff6b35] hover:bg-[#ff6b35]'
-                    } text-white py-2 rounded-lg transition-colors font-medium flex items-center justify-center gap-2`}
+                    } text-white py-2 rounded-lg transition-colors font-medium flex items-center justify-center gap-2 group relative overflow-hidden`}
                 >
                     {inCart ? (
                         <>
@@ -189,8 +190,15 @@ const ProductCard = ({ product, viewMode = 'grid', productType = 'electromenager
                         </>
                     ) : (
                         <>
-                            <IconifyIcon icon="lucide:shopping-cart" className="h-4 w-4" />
-                            Ajouter au panier
+                            {/* Texte par défaut */}
+                            <span className="flex items-center gap-2 transition-all duration-300 group-hover:-translate-y-8 group-hover:opacity-0">
+                                {/* <IconifyIcon icon="lucide:shopping-cart" className="h-4 w-4" /> */}
+                                Ajouter au panier
+                            </span>
+                            {/* Icône panier au survol */}
+                            <span className="absolute inset-0 flex items-center justify-center transition-all duration-300 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100">
+                                <IconifyIcon icon="lucide:shopping-cart" className="h-5 w-5" />
+                            </span>
                         </>
                     )}
                 </button>

@@ -114,7 +114,8 @@ const Hero = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [announcementIndex, setAnnouncementIndex] = useState(0);
     const currentSlide = heroSlides[currentIndex];
-
+    
+    
     /**
      * Change automatiquement le slide toutes les 5 secondes
      */
@@ -147,10 +148,8 @@ const Hero = () => {
 
     return (
         <>
-
-
             <section
-                className="relative pt-20 pb-8 md:pt-24 md:pb-12 bg-gray-100 min-h-[500px] md:min-h-[600px]"
+                className="relative  pb-8  md:pb-12 bg-gray-100 min-h-[500px] md:min-h-[600px]"
                 id="home"
             >
                 <div className="container relative z-10 px-4 md:px-0">

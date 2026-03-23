@@ -14,15 +14,17 @@ const CartPage = () => {
     const { cartItems, removeFromCart, updateQuantity, clearCart, getTotalPrice } = useCartContext()
     const totalPrice = getTotalPrice()
 
+
     // Obtenir la quantité minimale d'un produit
     const getMinQuantity = (product: any): number => {
         return product.minQuantity || 1
     }
 
+
     if (cartItems.length === 0) {
         return (
             <>
-                <Navigation />
+            <Navigation />
                 <section className="pt-24 pb-20 min-h-screen bg-white">
                     <div className="container pt-8">
                         <div className="text-center py-12">
@@ -81,8 +83,8 @@ const CartPage = () => {
                                                     </div>
                                                 )}
                                                 <img
-                                                    src={item.product.image}
-                                                    alt={item.product.name}
+                                                    src={item.product.imagePrincipale}
+                                                    alt={item.product.libelle}
                                                     className="w-full h-full object-contain p-2"
                                                 />
                                             </div>
@@ -93,11 +95,11 @@ const CartPage = () => {
                                             <div className="flex-1">
                                                 <Link href={`/products/${item.product.id}`}>
                                                     <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-2 hover:text-[#ff6b35] transition-colors line-clamp-2">
-                                                        {item.product.name}
+                                                        {item.product.libelle}
                                                     </h3>
                                                 </Link>
                                                 <p className="text-xs sm:text-sm text-gray-600 mb-2">
-                                                    {item.product.brand} • {item.product.category}
+                                                    {item.product.marque.libelle} • {item.product.category.libelle}
                                                 </p>
                                                 {/* Prix retiré */}
                                                 {minQuantity > 1 && (
@@ -171,13 +173,17 @@ const CartPage = () => {
                                         <p className="text-sm sm:text-base text-gray-600 text-center">
                                             Demandez un devis personnalisé pour vos articles
                                         </p>
+
                                     </div>
                                 </div>
 
-                                <button className="w-full bg-[#ff6b35] hover:bg-[#ff6b35] text-white py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-colors font-semibold text-base sm:text-lg flex items-center justify-center gap-2 mb-4">
+                                <Link
+                                    href="/checkout"
+                                    className="w-full bg-[#ff6b35] hover:bg-[#ff6b35] text-white py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-colors font-semibold text-base sm:text-lg flex items-center justify-center gap-2 mb-4"
+                                >
                                     <IconifyIcon icon="lucide:file-text" className="h-4 w-4 sm:h-5 sm:w-5" />
                                     Demander un devis
-                                </button>
+                                </Link>
 
                                 <Link
                                     href="/products"
