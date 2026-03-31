@@ -1,44 +1,26 @@
 "use client"
 import React from 'react'
-import Link from 'next/link'
-import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
-import IconifyIcon from '@/components/wrappers/IconifyIcon'
-import { useCartContext } from '@/context/useCartContext'
-import { formatPrice } from '@/data/products'
 import Checkout from '@/components/Checkout'
+import TestNavbar from '@/components/TestNavbar'
+import SideBar from '@/components/SideBar'
+
 /**
- * Page Panier
+ * Affiche la page checkout avec header harmonise.
  */
 const CheckoutPage = () => {
-    const { cartItems, removeFromCart, updateQuantity, clearCart, getTotalPrice } = useCartContext()
-    const totalPrice = getTotalPrice()
-    // Obtenir la quantité minimale d'un produit
-    const getMinQuantity = (product: any): number => {
-        return product.minQuantity || 1
-    }
+    const [sidebarOpen, setSidebarOpen] = React.useState(false)
 
     return (
-            <>
-            <Navigation />
-                <section className='mt-20'>
-                    <Checkout />
-                </section>
-            <Footer />
-            </>
-        )
-
-    if (cartItems.length === 0) {
-        return (
-            <>
-            <Navigation />
+        <>
+            <TestNavbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+            <SideBar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+            <section className="mt-20">
                 <Checkout />
+            </section>
             <Footer />
-            </>
-        )
-    }
-
-   
+        </>
+    )
 }
 
 export default CheckoutPage

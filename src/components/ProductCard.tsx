@@ -1,14 +1,14 @@
 "use client"
 import Link from 'next/link'
 import IconifyIcon from '@/components/wrappers/IconifyIcon'
-import { ProductData, formatPrice } from '@/data/products'
 import { useCartContext } from '@/context/useCartContext'
+import type { Article } from '@/types/articles'
 
 /**
  * Props du composant ProductCard
  */
 interface ProductCardProps {
-    product: ProductData
+    product: Article
     viewMode?: 'grid' | 'list'
     productType?: 'electromenager' | 'other' // Nouveau prop pour différencier les types
 }
@@ -18,7 +18,7 @@ interface ProductCardProps {
  */
 const ProductCard = ({ product, viewMode = 'grid', productType = 'electromenager' }: ProductCardProps) => {
     const { addToCart, isInCart } = useCartContext()
-    const inCart = isInCart(product.id)
+    const inCart = isInCart(String(product.id))
 
     const handleAddToCart = (e: React.MouseEvent) => {
         e.preventDefault()

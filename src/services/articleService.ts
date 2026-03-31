@@ -31,8 +31,11 @@ export const articleService = {
   },
   // ── GET BY SLUG ────────────────────────────────────────────────────────────
   getByParams: async (params:string, value:string): Promise<Article> => {
+    console.log('params ==> ', params)
+    console.log('value ==> ', value)
+    console.log('${ARTICLES}?${params}=${value} ==> ', `${ARTICLES}?${params}=${value}`)
     const { data } = await axiosInstance.get<any>(`${ARTICLES}?${params}=${value}`)
-
+    console.log('data ==> ', data)
     return data.data
   },
 

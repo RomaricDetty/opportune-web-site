@@ -1,40 +1,13 @@
 "use client"
-import React, { useMemo, useEffect } from 'react'
+import React from 'react'
 import Link from 'next/link'
 import IconifyIcon from '@/components/wrappers/IconifyIcon'
-import { ProductData, productsData } from '@/data/products'
 import ProductCard from './ProductCard'
-import { articleService } from '@/services/articleService'
-import { Article } from '@/types/articles'
+import type { Article } from '@/types/articles'
 /**
  * Composant Product - Affiche une sélection de produits (max 10)
  */
-const Product = ({category, products, idCategory}: {category?: string; products: ProductData[]; idCategory:any}) => {
-    // Prendre les 10 premiers produits
-    
-
-    // const products = useMemo(() => {
-    //     return productsData.slice(0, 6)
-    // }, [])
-
-    const [loading, setLoading] = React.useState(true)
-    const [articles, setArticles] = React.useState<Article[]>([])
-
-    const fetchArticles = async () => {
-        try {
-            const response = await articleService.getAll()
-            setArticles(Array.isArray(response) ? response : [response])
-        } catch (error) {
-            console.error('Error fetching articles:', error)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    // useEffect(() => {
-    //     fetchArticles()
-    // }, [])
-
+const Product = ({category, products, idCategory}: {category?: string; products: Article[]; idCategory:any}) => {
     return (
         <section id="products" className="py-10">
             <div className="container">

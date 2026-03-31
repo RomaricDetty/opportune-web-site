@@ -3,7 +3,6 @@ import IconifyIcon from '@/components/wrappers/IconifyIcon'
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useState, useEffect } from 'react'
-import { formatPrice } from '@/data/products'
 
 /**
  * Interface pour les données d'un slide du carousel Hero

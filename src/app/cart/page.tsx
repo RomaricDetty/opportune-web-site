@@ -1,11 +1,11 @@
 "use client"
 import React from 'react'
 import Link from 'next/link'
-import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import IconifyIcon from '@/components/wrappers/IconifyIcon'
 import { useCartContext } from '@/context/useCartContext'
-import { formatPrice } from '@/data/products'
+import TestNavbar from '@/components/TestNavbar'
+import SideBar from '@/components/SideBar'
 
 /**
  * Page Panier
@@ -13,6 +13,7 @@ import { formatPrice } from '@/data/products'
 const CartPage = () => {
     const { cartItems, removeFromCart, updateQuantity, clearCart, getTotalPrice } = useCartContext()
     const totalPrice = getTotalPrice()
+    const [sidebarOpen, setSidebarOpen] = React.useState(false)
 
 
     // Obtenir la quantité minimale d'un produit
@@ -20,11 +21,19 @@ const CartPage = () => {
         return product.minQuantity || 1
     }
 
+    // Construit un libelle marque/categorie robuste meme si des donnees manquent
+    const getProductMetaLabel = (product: any): string => {
+        const marqueLabel = product?.marque?.libelle ?? 'Marque non specifiee'
+        const categoryLabel = product?.category?.libelle ?? 'Categorie non specifiee'
+        return `${marqueLabel} • ${categoryLabel}`
+    }
+
 
     if (cartItems.length === 0) {
         return (
             <>
-            <Navigation />
+                <TestNavbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+                <SideBar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
                 <section className="pt-24 pb-20 min-h-screen bg-white">
                     <div className="container pt-8">
                         <div className="text-center py-12">
@@ -38,13 +47,7 @@ const CartPage = () => {
                             <p className="text-gray-600 mb-8">
                                 Ajoutez des produits à votre panier pour commencer vos achats.
                             </p>
-                            <Link
-                                href="/products"
-                                className="inline-flex items-center gap-2 px-6 py-3 bg-[#ff6b35] hover:bg-[#ff6b35] text-white font-semibold rounded-lg transition-colors"
-                            >
-                                <IconifyIcon icon="lucide:arrow-left" className="h-5 w-5" />
-                                Voir les produits
-                            </Link>
+                            
                         </div>
                     </div>
                 </section>
@@ -55,7 +58,8 @@ const CartPage = () => {
 
     return (
         <>
-            <Navigation />
+            <TestNavbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+            <SideBar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
             <section className="pt-24 pb-20 min-h-screen bg-white">
                 <div className="container pt-8 px-4 sm:px-6">
                     <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-6 md:mb-8">
@@ -99,7 +103,7 @@ const CartPage = () => {
                                                     </h3>
                                                 </Link>
                                                 <p className="text-xs sm:text-sm text-gray-600 mb-2">
-                                                    {item.product.marque.libelle} • {item.product.category.libelle}
+                                                    {getProductMetaLabel(item.product)}
                                                 </p>
                                                 {/* Prix retiré */}
                                                 {minQuantity > 1 && (

@@ -1,13 +1,12 @@
 "use client"
 import React, { useState, useMemo, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import IconifyIcon from '@/components/wrappers/IconifyIcon'
-import { ProductData, formatPrice } from '@/data/products'
-import { otherProductsData } from '@/data/others'
 import ProductCard from '@/components/ProductCard'
 import { articleService } from '@/services/articleService'
+import TestNavbar from '@/components/TestNavbar'
+import SideBar from '@/components/SideBar'
 
 type SortOption = 'popular' | 'cheapest'
 type ViewMode = 'grid' | 'list'
@@ -323,7 +322,6 @@ const OthersPageContent = () => {
     if (!categorySlug) {
         return (
             <>
-                <Navigation />
                 <section className="pt-24 pb-8 min-h-screen bg-white flex items-center justify-center">
                     <div className="container px-4">
                         <div className="max-w-md mx-auto text-center py-12 bg-white rounded-lg border border-gray-200 shadow-sm">
@@ -346,14 +344,12 @@ const OthersPageContent = () => {
                         </div>
                     </div>
                 </section>
-                <Footer />
             </>
         )
     }
 
     return (
         <>
-            <Navigation />
             <section className="pt-24 pb-8 min-h-screen bg-white" ref={productsSectionRef}>
                 <div className="container">
                     {/* En-tête avec titre et options de vue */}
@@ -607,8 +603,6 @@ const OthersPageContent = () => {
                     </div>
                 </>
             )}
-
-            <Footer />
         </>
     )
 }
@@ -617,9 +611,12 @@ const OthersPageContent = () => {
  * Page Others - Affiche tous les produits non-électroménagers avec filtres avancés
  */
 const OthersPage = () => {
+    const [sidebarOpen, setSidebarOpen] = useState(false)
+
     return (
         <>
-            <Navigation />
+            <TestNavbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+            <SideBar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
             <Suspense fallback={
                 <section className="pt-24 pb-8 min-h-screen bg-white flex items-center justify-center">
                     <div className="container">

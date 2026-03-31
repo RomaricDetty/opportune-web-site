@@ -8,7 +8,7 @@ import Swiperslider from "@/components/Swiperslider";
 import Brands from "@/components/Brands";
 import Product from "@/components/Products";
 import Features from "@/components/Features";
-import Nouveaute from "@/components/Nouveaute";
+// import Nouveaute from "@/components/Nouveaute";
 import About from "@/components/About";
 // import Pricing from "@/components/Pricing";
 // import Faqs from "@/components/Faqs";
@@ -23,42 +23,41 @@ import "swiper/css";
 import Pricing from "@/components/Pricing";
 import TestNavbar from "@/components/TestNavbar";
 import { articleService } from "@/services/articleService";
-import { ProductData } from "@/data/products";
 import Link from "next/link";
 import IconifyIcon from "@/components/wrappers/IconifyIcon";
 import HeroTest from "@/components/HeroTest";
 
 function page() {
-        const [sidebarOpen, setSidebarOpen] = React.useState(false);
-         const [loading, setLoading] = React.useState(true)
-            const [articles, setArticles] = React.useState<any[]>([])
-        
-            const fetchArticles = async () => {
-                try {
-                    const response = await articleService.getAllHome()
-                    setArticles(Array.isArray(response) ? response : [response])
-                } catch (error) {
-                    console.error('Error fetching articles:', error)
-                } finally {
-                    setLoading(false)
-                }
-            }
-        
-            useEffect(() => {
-                fetchArticles()
-            }, [])
+    const [sidebarOpen, setSidebarOpen] = React.useState(false);
+    const [loading, setLoading] = React.useState(true)
+    const [articles, setArticles] = React.useState<any[]>([])
+
+    const fetchArticles = async () => {
+        try {
+            const response = await articleService.getAllHome()
+            setArticles(Array.isArray(response) ? response : [response])
+        } catch (error) {
+            console.error('Error fetching articles:', error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        fetchArticles()
+    }, [])
     return (
         <>
-          {/* <Topbar /> */}
-        <TestNavbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}/>
-        {/* <Navigation onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} /> */}
-        <SideBar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-           <HeroTest />
+            {/* <Topbar /> */}
+            <TestNavbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+            {/* <Navigation onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} /> */}
+            <SideBar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+            <HeroTest />
             {/* <Brands /> */}
             {/* <Delivery /> */}
             {articles.slice(0, 5).map((article: any, index) => {
                 return (
-                    <Product key={index} category={article?.category} products={article.produits} idCategory={article.categoryId}/>
+                    <Product key={index} category={article?.category} products={article.produits} idCategory={article.categoryId} />
                 )
             })}
             {articles.length > 5 && (

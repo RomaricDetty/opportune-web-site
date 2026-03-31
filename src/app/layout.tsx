@@ -81,12 +81,12 @@ export default function RootLayout({
     children: React.ReactNode
 }>) {
     return (
-        <html lang="en">
+        <html lang="en" suppressHydrationWarning>
             <head>
                 <style suppressHydrationWarning>{splashScreenStyles}</style>
             </head>
             <title>Shop Electroménager</title>
-            <body className={`antialiased`}>
+            <body className={`antialiased`} suppressHydrationWarning>
                 <div id="splash-screen">
                     <div className="splash-loader"></div>
                 </div>
