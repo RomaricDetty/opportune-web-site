@@ -1,106 +1,34 @@
 "use client"
-import React, { useEffect } from 'react'
+import React from 'react'
 import Link from 'next/link'
 import Footer from '@/components/Footer'
 import IconifyIcon from '@/components/wrappers/IconifyIcon'
 import TestNavbar from '@/components/TestNavbar'
 import SideBar from '@/components/SideBar'
+import { useCartContext } from '@/context/useCartContext'
 
 /**
  * Page Panier
  */
 const CartPage = () => {
-    const CART_STORAGE_KEY = 'cart'
     const [sidebarOpen, setSidebarOpen] = React.useState(false)
-    const [cartItems, setCartItems] = React.useState<any[]>([])
+    const { cartItems, removeFromCart, updateQuantity, clearCart } = useCartContext()
 
     /**
-     * Normalise un item panier vers un format unique pour l'UI.
+     * Normalise un item du contexte vers un format d'affichage.
      */
-    const normalizeCartItem = (item: any) => {
-        if (item?.product) {
-            return {
-                id: item.product.id,
-                libelle: item.product.libelle,
-                imagePrincipale: item.product.imagePrincipale,
-                discount: item.product.discount ?? 0,
-                quantite_minimale: item.product.quantite_minimale ?? 1,
-                marque: item.product.marque,
-                category: item.product.category,
-                quantity: item.quantity ?? 1,
-            }
-        }
-        return {
-            id: item?.id,
-            libelle: item?.libelle ?? 'Article',
-            imagePrincipale: item?.imagePrincipale ?? '',
-            discount: item?.discount ?? 0,
-            quantite_minimale: item?.quantite_minimale ?? 1,
-            marque: item?.marque,
-            category: item?.category,
-            quantity: item?.quantity ?? 1,
-        }
-    }
-
-    /**
-     * Charge le panier depuis localStorage (compatible plusieurs formats).
-     */
-    const loadCartFromStorage = () => {
-        try {
-            const rawCart = localStorage.getItem(CART_STORAGE_KEY)
-            const parsed = rawCart ? JSON.parse(rawCart) : []
-            const normalized = Array.isArray(parsed) ? parsed.map(normalizeCartItem) : []
-            setCartItems(normalized)
-        } catch {
-            setCartItems([])
-        }
-    }
-
-    /**
-     * Sauvegarde le panier en localStorage puis met a jour l'etat local.
-     */
-    const saveCartToStorage = (items: any[]) => {
-        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items))
-        setCartItems(items)
-    }
-
-    /**
-     * Supprime un produit du panier localStorage.
-     */
-    const removeFromCart = (productId: string) => {
-        const nextItems = cartItems.filter((item) => item?.id !== productId)
-        saveCartToStorage(nextItems)
-    }
-
-    /**
-     * Met a jour la quantite d'un produit du panier localStorage.
-     */
-    const updateQuantity = (productId: string, quantity: number) => {
-        const item = cartItems.find((entry) => entry?.id === productId)
-        if (!item) return
-
-        const minQuantity = getMinQuantity(item)
-        if (quantity < minQuantity) {
-            removeFromCart(productId)
-            return
-        }
-
-        const nextItems = cartItems.map((entry) =>
-            entry?.id === productId ? { ...entry, quantity } : entry
-        )
-        saveCartToStorage(nextItems)
-    }
-
-    /**
-     * Vide le panier localStorage.
-     */
-    const clearCart = () => {
-        saveCartToStorage([])
-    }
-
-    useEffect(() => {
-        loadCartFromStorage()
-    }, [])
+    const viewCartItems = React.useMemo(() => {
+        return cartItems.map((item) => ({
+            id: item.product.id,
+            libelle: item.product.libelle,
+            imagePrincipale: item.product.imagePrincipale,
+            discount: item.product.discount ?? 0,
+            quantite_minimale: item.product.quantite_minimale ?? 1,
+            marque: item.product.marque,
+            category: item.product.category,
+            quantity: item.quantity ?? 1,
+        }))
+    }, [cartItems])
 
     // Obtenir la quantité minimale d'un produit
     const getMinQuantity = (product: any): number => {
@@ -115,12 +43,12 @@ const CartPage = () => {
     }
 
 
-    if (cartItems.length === 0) {
+    if (viewCartItems.length === 0) {
         return (
             <>
                 <TestNavbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
                 <SideBar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-                <section className="pt-24 pb-20 min-h-screen bg-white">
+                <section className="pt-24 pb-20 min-h-screen bg-[#f8fafc]">
                     <div className="container pt-8">
                         <div className="text-center py-12">
                             <IconifyIcon 
@@ -146,27 +74,27 @@ const CartPage = () => {
         <>
             <TestNavbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
             <SideBar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-            <section className="pt-24 pb-20 min-h-screen bg-white">
+            <section className="pt-24 pb-20 min-h-screen bg-[#f8fafc]">
                 <div className="container pt-8 px-4 sm:px-6">
                     <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-6 md:mb-8">
-                        Mon panier ({cartItems.length} {cartItems.length > 1 ? 'articles' : 'article'})
+                        Mon panier ({viewCartItems.length} {viewCartItems.length > 1 ? 'articles' : 'article'})
                     </h1>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
                         {/* Liste des articles */}
                         <div className="lg:col-span-2 space-y-4">
-                            {cartItems.map((item) => {
+                            {viewCartItems.map((item) => {
                                 const minQuantity = getMinQuantity(item)
                                 const isMinQuantity = item.quantity === minQuantity
 
                                 return (
                                     <div
                                         key={item.id}
-                                        className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:gap-6"
+                                        className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:gap-6"
                                     >
                                         {/* Image */}
                                         <Link href={`/others/${item.id}`} className="flex-shrink-0 self-center sm:self-start">
-                                            <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 bg-gray-50 rounded-lg overflow-hidden">
+                                            <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 bg-gray-50 rounded-xl overflow-hidden">
                                                 {/* {item.product.discount > 0 && (
                                                     <div className="absolute top-2 left-2 z-10 bg-[#ff6b35] text-white text-xs font-bold px-2 py-1 rounded">
                                                         -{item.product.discount}%

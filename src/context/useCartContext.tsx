@@ -60,6 +60,17 @@ const safeRemoveItem = (storage: Storage, key: string) => {
     }
 }
 
+/**
+ * Retire les images inline base64 pour éviter les erreurs de quota storage.
+ */
+const sanitizeImageForStorage = (value?: string | null): string => {
+    if (!value) return ''
+    const trimmed = String(value).trim()
+    if (!trimmed) return ''
+    if (trimmed.startsWith('data:image/')) return ''
+    return trimmed
+}
+
 const sanitizeProductForCart = (product: Article): Article => {
     return {
         id: product.id,
@@ -67,7 +78,7 @@ const sanitizeProductForCart = (product: Article): Article => {
         slug: product.slug ?? '',
         description: '',
         excerpt: '',
-        imagePrincipale: product.imagePrincipale ?? '',
+        imagePrincipale: sanitizeImageForStorage(product.imagePrincipale),
         category: {
             id: product.category?.id ?? '',
             libelle: product.category?.libelle ?? '',
@@ -99,7 +110,20 @@ const persistCartSafely = (items: CartItem[]) => {
         return
     }
 
-    safeSetItem(sessionStorage, CART_FALLBACK_KEY, payload)
+    const writtenInSession = safeSetItem(sessionStorage, CART_FALLBACK_KEY, payload)
+    if (writtenInSession) return
+
+    // Dernière tentative ultra compacte (sans image) si les deux stockages échouent.
+    const ultraCompactPayload = JSON.stringify(
+        compactItems.map((item) => ({
+            ...item,
+            product: {
+                ...item.product,
+                imagePrincipale: '',
+            },
+        }))
+    )
+    safeSetItem(sessionStorage, CART_FALLBACK_KEY, ultraCompactPayload)
 }
 
 const clearPersistedCart = () => {
@@ -143,16 +167,14 @@ export function useCartContext() {
 }
 
 function CartProvider({ children }: Readonly<{ children: ReactNode }>) {
-    // Le lazy initializer est appelé une seule fois, de manière synchrone,
-    // avant le premier render. Pas de useEffect, pas de timing à gérer.
-    const [cartItems, setCartItems] = useState<CartItem[]>(loadCartFromStorage)
-    const isMounted = useRef(false)
+    const [cartItems, setCartItems] = useState<CartItem[]>([])
+    const isCartHydrated = useRef(false)
 
     useEffect(() => {
-        // On ignore le tout premier appel (montage initial) pour ne pas
-        // persister [] si le localStorage était déjà peuplé avant le render.
-        if (!isMounted.current) {
-            isMounted.current = true
+        // Hydrate le panier uniquement côté client après le premier rendu.
+        if (!isCartHydrated.current) {
+            setCartItems(loadCartFromStorage())
+            isCartHydrated.current = true
             return
         }
         persistCartSafely(cartItems)

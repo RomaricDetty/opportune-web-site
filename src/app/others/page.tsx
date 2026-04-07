@@ -76,6 +76,9 @@ const isCategoryAllowed = (slug: string | null): boolean => {
 const OthersPageContent = () => {
     const searchParams = useSearchParams()
     const searchQuery = (searchParams.get('search') || '').trim()
+    /** Catalogue complet sans filtre categorie (ex: /others?all=1) */
+    const showAllCatalog =
+        searchParams.get('all') === '1' || searchParams.get('all') === 'true'
     const rawCategoryParam = searchParams.get('category')
     const categorySlug = rawCategoryParam ? generateCategorySlug(rawCategoryParam) : null
     const categoryUid = searchParams.get('uid') || ''
@@ -214,7 +217,7 @@ const OthersPageContent = () => {
 
     useEffect(() => {
         fetchArticlesByCategory()
-    }, [categorySlug, categoryUid, searchQuery])
+    }, [categorySlug, categoryUid, searchQuery, showAllCatalog])
 
     const toggleBrand = (brandId: string) => {
         setSelectedBrands(prev =>
@@ -307,6 +310,13 @@ const OthersPageContent = () => {
                 return
             }
 
+            // Catalogue complet (lien "Plus d'articles" depuis l'accueil, etc.)
+            if (showAllCatalog) {
+                const allData = await articleService.getAll()
+                setProducts(Array.isArray(allData) ? allData : [allData])
+                return
+            }
+
             if (!categorySlug && !categoryUid) {
                 setProducts([])
                 return
@@ -372,10 +382,10 @@ const OthersPageContent = () => {
     )
 
     // Si la catégorie n'est pas valide ou absente, afficher le message d'erreur
-    if (!categorySlug && !categoryUid && !searchQuery) {
+    if (!categorySlug && !categoryUid && !searchQuery && !showAllCatalog) {
         return (
             <>
-                <section className="pt-24 pb-8 min-h-screen bg-white flex items-center justify-center">
+                <section className="pt-24 pb-8 min-h-screen bg-[#f8fafc] flex items-center justify-center">
                     <div className="container px-4">
                         <div className="max-w-md mx-auto text-center py-12 bg-white rounded-lg border border-gray-200 shadow-sm">
                             <div className="mb-6">
@@ -389,7 +399,7 @@ const OthersPageContent = () => {
                             </p>
                             <a
                                 href="/"
-                                className="inline-flex items-center gap-2 px-6 py-3 bg-[#ff6b35] text-white font-semibold rounded-lg hover:bg-[#e55a2b] transition-colors"
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-[#ff6b35] text-white font-semibold rounded-xl hover:bg-[#e55a2b] transition-colors"
                             >
                                 <IconifyIcon icon="lucide:arrow-left" className="h-5 w-5" />
                                 Retour à l'accueil
@@ -403,16 +413,20 @@ const OthersPageContent = () => {
 
     return (
         <>
-            <section className="pt-24 pb-8 min-h-screen bg-white" ref={productsSectionRef}>
+            <section className="pt-24 pb-8 min-h-screen bg-[#f8fafc]" ref={productsSectionRef}>
                 <div className="container">
                     {/* En-tête avec titre et options de vue */}
                     <div className="pt-8 flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 capitalize">
-                            {searchQuery ? `resultats pour "${searchQuery}"` : categorySlug}
+                            {searchQuery
+                                ? `resultats pour "${searchQuery}"`
+                                : showAllCatalog
+                                    ? 'Tous les articles'
+                                    : categorySlug}
                         </h1>
                         <div className="flex items-center gap-4">
                             {/* Options de vue */}
-                            <div className="flex items-center gap-1 border border-gray-300 rounded-lg p-1 bg-white">
+                            <div className="flex items-center gap-1 border border-gray-300 rounded-xl p-1 bg-white shadow-sm">
                                 <button
                                     onClick={() => setViewMode('grid')}
                                     className={`px-3 py-1.5 rounded transition-colors text-sm font-medium ${viewMode === 'grid'
@@ -469,7 +483,7 @@ const OthersPageContent = () => {
                         {brands.length > 0 && (
                             <button
                                 onClick={() => setIsFiltersOpen(true)}
-                                className="lg:hidden ml-auto flex items-center gap-2 px-4 py-2 bg-[#ff6b35] text-white rounded-lg hover:bg-[#ff6b35] transition-colors font-medium text-sm"
+                                className="lg:hidden ml-auto flex items-center gap-2 px-4 py-2 bg-[#ff6b35] text-white rounded-xl hover:bg-[#ff6b35] transition-colors font-medium text-sm"
                                 aria-label="Ouvrir les filtres"
                             >
                                 <IconifyIcon icon="lucide:filter" className="h-4 w-4" />
@@ -504,7 +518,7 @@ const OthersPageContent = () => {
                         {/* Sidebar de filtres desktop */}
                         {brands.length > 0 ? (
                             <aside className="hidden lg:block w-64 flex-shrink-0">
-                                <div className="bg-white rounded-lg border border-gray-200 p-6 sticky top-24">
+                                <div className="bg-white rounded-2xl border border-gray-200 p-6 sticky top-24 shadow-sm">
                                     {renderFilters()}
                                 </div>
                             </aside>

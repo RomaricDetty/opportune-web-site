@@ -71,16 +71,16 @@ const SearchBar = () => {
     }
 
     return (
-        <div ref={searchRef} className="relative flex-1 max-w-xl mx-4 hidden lg:flex">
+        <div ref={searchRef} className="relative flex w-full">
             {/* Input */}
-            <div className="flex w-full border-2 border-gray-200 hover:border-primary/40 focus-within:border-primary rounded-full transition-colors overflow-hidden shadow-sm">
+            <div className="flex w-full border border-gray-200 hover:border-primary/40 focus-within:border-primary rounded-[100px] transition-colors overflow-hidden shadow-sm bg-white">
                 <input
                     type="text"
                     value={query}
                     onChange={(e) => handleSearch(e.target.value)}
                     onFocus={() => results.length > 0 && setIsOpen(true)}
                     placeholder="Que recherchez-vous ?"
-                    className="flex-1 px-5 py-2.5 text-sm text-gray-700 outline-none bg-transparent border-none"
+                    className="flex-1 px-4 md:px-5 py-2.5 text-sm text-gray-700 outline-none bg-transparent border-none"
                 />
                 {/* Bouton clear */}
                 {query && (
@@ -92,7 +92,7 @@ const SearchBar = () => {
                     </button>
                 )}
                 {/* Bouton search */}
-                <button className="bg-primary hover:bg-primaryDark text-white rounded-full w-10 h-10 flex items-center justify-center m-1 transition-colors shrink-0">
+                <button className="bg-primary hover:bg-primaryDark text-white rounded-[100px] w-10 h-10 flex items-center justify-center m-1 transition-colors shrink-0">
                     {loading
                         ? <IconifyIcon icon="lucide:loader-2" className="h-4 w-4 animate-spin" />
                         : <IconifyIcon icon="lucide:search" className="h-4 w-4" />
@@ -107,7 +107,7 @@ const SearchBar = () => {
                     {/* Résultats trouvés */}
                     {results.length > 0 ? (
                         <>
-                            <div className="grid grid-cols-2 divide-x divide-y divide-gray-100">
+                            <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y divide-gray-100 md:divide-x">
                                 {results.map((article) => (
                                     <Link
                                         key={article.id}

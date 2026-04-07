@@ -10,31 +10,46 @@ import logoElectroShopBlanc from "@/assets/images/logo-electro-shop-blanc.png";
 function Footer() {
     return (
         <footer className="bg-[#17243A]">
-            <div className="container py-12">
-                <div className="flex flex-col items-center text-center space-y-6">
-                    {/* Logo */}
-                    <Image 
-                        src={logoElectroShopBlanc} 
-                        alt="logo" 
-                        width={118} 
-                        className="mb-2"
-                    />
-                    
-                    {/* Contact */}
-                    <div className="flex flex-col sm:flex-row gap-4 text-gray-300 text-sm">
-                        <a 
-                            href="mailto:contact@electrostoreci.com" 
-                            className="hover:text-white transition-colors"
-                        >
-                            contact@electrostoreci.com
-                        </a>
-                        <span className="hidden sm:inline">•</span>
-                        <a 
-                            href="tel:+2250707070707" 
-                            className="hover:text-white transition-colors"
-                        >
-                            (+225) 07 07 07 07 07
-                        </a>
+            <div className="container py-12 md:py-14">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="space-y-4">
+                        <Image
+                            src={logoElectroShopBlanc}
+                            alt="logo"
+                            width={118}
+                            className="mb-2"
+                        />
+                        <p className="text-gray-300 text-sm max-w-xs">
+                            Votre boutique tech et maison, avec un service de proximite et une livraison rapide.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 className="text-white text-base font-semibold mb-3">Navigation</h4>
+                        <div className="flex flex-col gap-2 text-sm text-gray-300">
+                            <a href="/" className="hover:text-white transition-colors">Accueil</a>
+                            <a href="/others?category=telephones" className="hover:text-white transition-colors">Telephones</a>
+                            <a href="/others?category=mobiliers" className="hover:text-white transition-colors">Mobiliers</a>
+                            <a href="/others?category=accessoires" className="hover:text-white transition-colors">Accessoires</a>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 className="text-white text-base font-semibold mb-3">Contact</h4>
+                        <div className="flex flex-col gap-2 text-sm text-gray-300">
+                            <a
+                                href="mailto:contact@electrostoreci.com"
+                                className="hover:text-white transition-colors"
+                            >
+                                contact@electrostoreci.com
+                            </a>
+                            <a
+                                href="tel:+2250707070707"
+                                className="hover:text-white transition-colors"
+                            >
+                                (+225) 07 07 07 07 07
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>

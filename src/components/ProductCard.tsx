@@ -82,10 +82,10 @@ const ProductCard = ({ product, viewMode = 'grid', productType = 'other' }: Prod
     
     if (viewMode === 'list') {
         return (
-            <div className="flex gap-4 bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+            <div className="flex gap-4 bg-white rounded-2xl border border-gray-200 p-4 hover:shadow-lg transition-shadow">
                 <Link href={productPath} className="flex gap-4 flex-1">
                     {/* Image */}
-                    <div className="relative w-48 h-48 flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden">
+                    <div className="relative w-36 h-36 md:w-48 md:h-48 flex-shrink-0 bg-gray-50 rounded-xl overflow-hidden">
                         {product.discount > 0 && (
                             <div className="absolute top-2 left-2 z-10 bg-[#ff6b35] text-white text-xs font-bold px-2 py-1 rounded">
                                 -{product.discount}%
@@ -129,7 +129,7 @@ const ProductCard = ({ product, viewMode = 'grid', productType = 'other' }: Prod
                             inCart 
                                 ? 'bg-green-600 hover:bg-green-700' 
                                 : 'bg-[#ff6b35] hover:bg-[#ff6b35]'
-                        } text-white px-6 py-2 rounded-lg transition-colors font-medium flex items-center gap-2`}
+                        } text-white px-5 py-2 rounded-xl transition-colors font-medium flex items-center gap-2`}
                     >
                         {inCart ? (
                             <>
@@ -150,17 +150,17 @@ const ProductCard = ({ product, viewMode = 'grid', productType = 'other' }: Prod
 
     // Mode grille (par défaut)
     return (
-        <div className="group relative bg-white rounded-lg border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-lg">
+        <div className="group relative bg-white rounded-2xl border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-xl">
             <Link href={productPath} className="block">
                 {/* Badge de réduction orange */}
                 {product.discount > 0 && (
-                    <div className="absolute top-3 left-3 z-10 bg-[#ff6b35] text-white text-xs font-bold px-2 py-1 rounded">
+                    <div className="absolute top-3 left-3 z-10 bg-[#ff6b35] text-white text-xs font-bold px-2 py-1 rounded-lg">
                         -{product.discount}%
                     </div>
                 )}
 
                 {/* Image du produit */}
-                <div className="relative w-full h-64 flex items-center justify-center bg-gray-50 overflow-hidden">
+                <div className="relative w-full h-56 md:h-64 flex items-center justify-center bg-gray-50 overflow-hidden">
                     {getSafeImageSrc(product.imagePrincipale) ? (
                         <img
                             src={getSafeImageSrc(product.imagePrincipale) as string}
@@ -201,7 +201,7 @@ const ProductCard = ({ product, viewMode = 'grid', productType = 'other' }: Prod
                         inCart 
                             ? 'bg-green-600 hover:bg-green-700' 
                             : 'bg-[#ff6b35] hover:bg-[#ff6b35]'
-                    } text-white py-2 rounded-lg transition-colors font-medium flex items-center justify-center gap-2 group relative overflow-hidden`}
+                    } text-white py-2.5 rounded-xl transition-colors font-medium flex items-center justify-center gap-2 group relative overflow-hidden`}
                 >
                     {inCart ? (
                         <>

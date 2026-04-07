@@ -59,14 +59,14 @@ function page() {
 
             {articles.slice(0, 5).map((article: any, index) => {
                 return (
-                    <Product key={index} category={article?.category} products={article.produits} idCategory={article.categoryId} />
+                    <Product key={index} category={article?.category} products={article.produits} />
                 )
             })}
 
             {articles.length > 5 && (
                 <div className="flex justify-center mb-4">
                     <Link
-                        href="/others"
+                        href="/others?all=1"
                         className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primaryDark text-white text-sm font-semibold rounded-full transition-colors shadow-sm"
                     >
                         Voir tous les articles

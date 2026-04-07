@@ -2,93 +2,24 @@ import IconifyIcon from '@/components/wrappers/IconifyIcon'
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import { demandeDevisService } from '@/services/demandeDevisService' // ✅ à créer
+import { useCartContext } from '@/context/useCartContext'
 
 const Checkout = () => {
     const router = useRouter()
-    const CART_STORAGE_KEY = 'cart'
-    const [cartItems, setCartItems] = React.useState<any[]>([])
+    const { cartItems, removeFromCart, updateQuantity, clearCart } = useCartContext()
 
     /**
-     * Normalise un item panier vers un format unique pour le checkout.
+     * Normalise les items du contexte pour l'affichage checkout.
      */
-    const normalizeCartItem = (item: any) => {
-        if (item?.product) {
-            return {
-                id: item.product.id,
-                libelle: item.product.libelle,
-                imagePrincipale: item.product.imagePrincipale,
-                quantite_minimale: item.product.quantite_minimale ?? 1,
-                quantity: item.quantity ?? 1,
-            }
-        }
-        return {
-            id: item?.id,
-            libelle: item?.libelle ?? 'Article',
-            imagePrincipale: item?.imagePrincipale ?? '',
-            quantite_minimale: item?.quantite_minimale ?? 1,
-            quantity: item?.quantity ?? 1,
-        }
-    }
-
-    /**
-     * Charge le panier depuis localStorage.
-     */
-    const loadCartFromStorage = () => {
-        try {
-            const rawCart = localStorage.getItem(CART_STORAGE_KEY)
-            const parsed = rawCart ? JSON.parse(rawCart) : []
-            const normalized = Array.isArray(parsed) ? parsed.map(normalizeCartItem) : []
-            setCartItems(normalized)
-        } catch {
-            setCartItems([])
-        }
-    }
-
-    /**
-     * Sauvegarde le panier dans localStorage et met a jour l'etat.
-     */
-    const saveCartToStorage = (items: any[]) => {
-        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items))
-        setCartItems(items)
-    }
-
-    /**
-     * Supprime un produit du panier.
-     */
-    const removeFromCart = (productId: string) => {
-        const nextItems = cartItems.filter((item) => item?.id !== productId)
-        saveCartToStorage(nextItems)
-    }
-
-    /**
-     * Met a jour la quantite d'un produit.
-     */
-    const updateQuantity = (productId: string, quantity: number) => {
-        const item = cartItems.find((entry) => entry?.id === productId)
-        if (!item) return
-
-        const minQuantity = getMinQuantity(item)
-        if (quantity < minQuantity) {
-            removeFromCart(productId)
-            return
-        }
-
-        const nextItems = cartItems.map((entry) =>
-            entry?.id === productId ? { ...entry, quantity } : entry
-        )
-        saveCartToStorage(nextItems)
-    }
-
-    /**
-     * Vide le panier.
-     */
-    const clearCart = () => {
-        saveCartToStorage([])
-    }
-
-    React.useEffect(() => {
-        loadCartFromStorage()
-    }, [])
+    const checkoutItems = React.useMemo(() => {
+        return cartItems.map((item) => ({
+            id: item.product.id,
+            libelle: item.product.libelle,
+            imagePrincipale: item.product.imagePrincipale,
+            quantite_minimale: item.product.quantite_minimale ?? 1,
+            quantity: item.quantity ?? 1,
+        }))
+    }, [cartItems])
 
     const getMinQuantity = (product: any): number => product.quantite_minimale || 1
 
@@ -119,7 +50,7 @@ const Checkout = () => {
     const isFormValid = () => {
         if (!donnees.nom.trim()) { setError("Le nom est obligatoire"); return false }
         if (!donnees.telephone.trim()) { setError("Le téléphone est obligatoire"); return false }
-        if (cartItems.length === 0) { setError("Votre panier est vide"); return false }
+        if (checkoutItems.length === 0) { setError("Votre panier est vide"); return false }
         return true
     }
 
@@ -139,7 +70,7 @@ const Checkout = () => {
                 email:        donnees.email || null,
                 adresse:      donnees.adresse || null,
                 message:      donnees.message || null,
-                items: cartItems.map(item => ({
+                items: checkoutItems.map(item => ({
                     idProduit: item.id,
                     quantite:  item.quantity
                 }))
@@ -190,7 +121,7 @@ const Checkout = () => {
             )}
             <div className="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 items-start mt-20">
                 <div className="flex flex-col gap-5">
-                    <div className="bg-white shadow-sm overflow-hidden">
+                    <div className="bg-white shadow-sm rounded-2xl border border-gray-200 overflow-hidden">
                         <div className="px-6 py-4 border-b border-stone-100 flex items-center gap-3 bg-gray-900">
                             <h2 className="font-sora font-bold text-lg text-white">Information personnelle</h2>
                         </div>
@@ -213,7 +144,7 @@ const Checkout = () => {
                                         type="text"
                                         value={donnees.nom}
                                         onChange={(e) => setDonnees({ ...donnees, nom: e.target.value })}
-                                        className="block w-full text-sm rounded-md py-3 px-4 border-[1.5px] border-stone-200 focus:border-primary focus:ring-2 focus:ring-primary transition-all"
+                                        className="block w-full text-sm rounded-xl py-3 px-4 border-[1.5px] border-stone-200 focus:border-primary focus:ring-2 focus:ring-primary transition-all"
                                         placeholder="Votre nom..."
                                     />
                                 </div>
@@ -224,7 +155,7 @@ const Checkout = () => {
                                         type="text"
                                         value={donnees.prenom}
                                         onChange={(e) => setDonnees({ ...donnees, prenom: e.target.value })}
-                                        className="block w-full text-sm rounded-md py-3 px-4 border-[1.5px] border-stone-200 focus:border-primary focus:ring-2 focus:ring-primary transition-all"
+                                        className="block w-full text-sm rounded-xl py-3 px-4 border-[1.5px] border-stone-200 focus:border-primary focus:ring-2 focus:ring-primary transition-all"
                                         placeholder="Votre prénom..."
                                     />
                                 </div>
@@ -235,7 +166,7 @@ const Checkout = () => {
                                         type="email"
                                         value={donnees.email}
                                         onChange={(e) => setDonnees({ ...donnees, email: e.target.value })}
-                                        className="block w-full text-sm rounded-md py-3 px-4 border-[1.5px] border-stone-200 focus:border-primary focus:ring-2 focus:ring-primary transition-all"
+                                        className="block w-full text-sm rounded-xl py-3 px-4 border-[1.5px] border-stone-200 focus:border-primary focus:ring-2 focus:ring-primary transition-all"
                                         placeholder="Votre email..."
                                     />
                                 </div>
@@ -284,7 +215,7 @@ const Checkout = () => {
                             {/* ✅ Bouton submit */}
                             <button
                                 onClick={handleCheckout}
-                                disabled={isLoading || cartItems.length === 0}
+                                disabled={isLoading || checkoutItems.length === 0}
                                 className="mt-6 w-full flex items-center justify-center gap-2 py-4 px-6 rounded-xl bg-primary hover:bg-primary-dark text-white font-sora font-bold text-base transition-all duration-200 hover:-translate-y-0.5 shadow-lg shadow-orange/30 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                             >
                                 {isLoading ? (
@@ -310,10 +241,10 @@ const Checkout = () => {
                     </div>
                     <div className="p-6 pt-3">
                         <div className="flex flex-col divide-y divide-stone-100">
-                            {cartItems.length === 0 ? (
+                            {checkoutItems.length === 0 ? (
                                 <p className="text-center text-gray-400 text-sm py-8">Votre panier est vide</p>
                             ) : (
-                                cartItems.map((item) => {
+                                checkoutItems.map((item) => {
                                     const minQuantity = getMinQuantity(item)
                                     const isMinQuantity = item.quantity === minQuantity
                                     return (

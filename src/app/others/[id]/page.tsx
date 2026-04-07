@@ -13,6 +13,64 @@ import SideBar from '@/components/SideBar'
 /**
  * Genere un slug a partir du nom d'une categorie.
  */
+/**
+ * Retourne une URL d'image affichable ou null.
+ */
+const getSafeImageSrc = (value?: string | null): string | null => {
+    if (!value || !String(value).trim()) return null
+    return String(value).trim()
+}
+
+/**
+ * Parse le champ images API (JSON string ou tableau) en liste d'URLs valides.
+ */
+const parseGalleryImageUrls = (raw: unknown): string[] => {
+    if (raw == null) return []
+    try {
+        const list: unknown =
+            typeof raw === 'string'
+                ? (() => {
+                      try {
+                          return JSON.parse(raw)
+                      } catch {
+                          return raw.trim() ? [raw] : []
+                      }
+                  })()
+                : raw
+        if (!Array.isArray(list)) return []
+        return list
+            .map((u) => (typeof u === 'string' ? u.trim() : ''))
+            .filter(Boolean)
+    } catch {
+        return []
+    }
+}
+
+/**
+ * Construit la galerie complete : image principale + images secondaires, sans doublons.
+ * Accepte plusieurs noms de champs possibles selon l'API.
+ */
+const buildProductGallery = (product: Article): string[] => {
+    const main = getSafeImageSrc(product.imagePrincipale)
+    const ext = product as Article & {
+        imageSecondaires?: unknown
+        galerie?: unknown
+    }
+    const extras = [
+        ...parseGalleryImageUrls(product.images),
+        ...parseGalleryImageUrls(ext.imageSecondaires),
+        ...parseGalleryImageUrls(ext.galerie),
+    ]
+    const seen = new Set<string>()
+    const out: string[] = []
+    for (const url of [main, ...extras].filter(Boolean) as string[]) {
+        if (seen.has(url)) continue
+        seen.add(url)
+        out.push(url)
+    }
+    return out
+}
+
 const generateCategorySlug = (categoryName: string): string => {
     return categoryName
         .toLowerCase()
@@ -36,6 +94,13 @@ const OtherProductDetailPageContent = () => {
     const [loading, setLoading] = useState<boolean>(true)
     const [error, setError] = useState<string | null>(null)
     const [similarProducts, setSimilarProducts] = useState<Article[]>([])
+    const [activeImageIndex, setActiveImageIndex] = useState(0)
+
+    const gallery = useMemo(() => (product ? buildProductGallery(product) : []), [product])
+
+    useEffect(() => {
+        setActiveImageIndex(0)
+    }, [product?.id])
 
     const inCart = product ? isInCart(product.id) : false
 
@@ -105,7 +170,7 @@ const OtherProductDetailPageContent = () => {
                         <h1 className="text-3xl font-bold text-gray-900 mb-4">Produit introuvable</h1>
                         <p className="text-gray-600 mb-8">Le produit que vous recherchez n&apos;existe pas.</p>
                         <Link
-                            href="/others"
+                            href="/others?all=1"
                             className="inline-flex items-center gap-2 px-6 py-3 bg-[#ff6b35] hover:bg-[#ff6b35] text-white font-semibold rounded-lg transition-colors"
                         >
                             <IconifyIcon icon="lucide:arrow-left" className="h-5 w-5" />
@@ -137,15 +202,64 @@ const OtherProductDetailPageContent = () => {
                 </nav>
 
                 <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 mb-16">
-                    <div className="relative">
-                        <div className="relative w-full aspect-square bg-gray-50 rounded-lg overflow-hidden border border-gray-200">
+                    {/*
+                      Mobile : image principale puis miniatures en dessous (flex-col).
+                      Large ecran : miniatures a gauche, principale a droite (lg:flex-row-reverse).
+                    */}
+                    <div className="relative flex flex-col gap-4 lg:flex-row-reverse lg:items-start lg:gap-4">
+                        <div className="relative w-full aspect-square min-w-0 flex-1 bg-gray-50 rounded-lg overflow-hidden border border-gray-200">
                             {product.discount > 0 && (
                                 <div className="absolute top-4 left-4 z-10 bg-[#ff6b35] text-white text-sm font-bold px-3 py-1.5 rounded">
                                     -{product.discount}%
                                 </div>
                             )}
-                            <img src={product.imagePrincipale} alt={product.libelle} className="w-full h-full object-contain p-8" />
+                            {gallery.length > 0 && getSafeImageSrc(gallery[activeImageIndex] ?? gallery[0]) ? (
+                                <img
+                                    src={getSafeImageSrc(gallery[activeImageIndex] ?? gallery[0]) as string}
+                                    alt={product.libelle}
+                                    className="w-full h-full object-contain p-8"
+                                />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                    <IconifyIcon icon="lucide:image-off" className="h-16 w-16 text-gray-300" />
+                                </div>
+                            )}
                         </div>
+                        {gallery.length > 1 && (
+                            <div
+                                className="flex flex-row flex-wrap justify-center gap-2 sm:gap-2.5 lg:flex-col lg:flex-nowrap lg:justify-start lg:w-[92px] lg:shrink-0 lg:max-h-[min(70vh,520px)] lg:overflow-y-auto lg:overflow-x-hidden lg:pr-1 lg:py-0.5"
+                                role="tablist"
+                                aria-label="Autres vues du produit"
+                            >
+                                {gallery.map((url, index) => (
+                                    <button
+                                        key={`${url}-${index}`}
+                                        type="button"
+                                        role="tab"
+                                        aria-selected={index === activeImageIndex}
+                                        onClick={() => setActiveImageIndex(index)}
+                                        className={`relative h-16 w-16 sm:h-[72px] sm:w-[72px] lg:h-20 lg:w-20 shrink-0 rounded-lg border-2 overflow-hidden bg-white transition-colors ${
+                                            index === activeImageIndex
+                                                ? 'border-[#ff6b35] ring-2 ring-[#ff6b35]/30'
+                                                : 'border-gray-200 hover:border-gray-300'
+                                        }`}
+                                        aria-label={`Image ${index + 1}`}
+                                    >
+                                        {getSafeImageSrc(url) ? (
+                                            <img
+                                                src={url}
+                                                alt=""
+                                                className="w-full h-full object-contain p-1"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center">
+                                                <IconifyIcon icon="lucide:image-off" className="h-6 w-6 text-gray-300" />
+                                            </div>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex flex-col">
@@ -229,11 +343,15 @@ const OtherProductDetailPageContent = () => {
                                         </div>
                                     )}
                                     <div className="relative w-full h-48 flex items-center justify-center bg-gray-50 overflow-hidden">
-                                        <img
-                                            src={similarProduct.imagePrincipale}
-                                            alt={similarProduct.libelle}
-                                            className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300"
-                                        />
+                                        {getSafeImageSrc(similarProduct.imagePrincipale) ? (
+                                            <img
+                                                src={getSafeImageSrc(similarProduct.imagePrincipale) as string}
+                                                alt={similarProduct.libelle}
+                                                className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300"
+                                            />
+                                        ) : (
+                                            <IconifyIcon icon="lucide:image-off" className="h-10 w-10 text-gray-300" />
+                                        )}
                                     </div>
                                     <div className="p-4">
                                         <h3 className="text-sm font-semibold text-gray-900 mb-2 line-clamp-1">{similarProduct.libelle}</h3>

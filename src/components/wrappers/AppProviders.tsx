@@ -5,6 +5,18 @@ import { usePathname } from 'next/navigation'
 import { Fragment, useEffect } from 'react'
 import { CartProvider } from '@/context/useCartContext'
 
+/**
+ * Reinitialise Preline apres navigation (dropdowns, etc.).
+ * Les erreurs sont ignorees : autoInit peut echouer si le DOM n'est pas pret ou des refs sont obsoletes.
+ */
+const safePrelineAutoInit = () => {
+    try {
+        window.HSStaticMethods?.autoInit?.()
+    } catch {
+        // no-op
+    }
+}
+
 const AppProviders = ({ children }: ChildrenType) => {
     const pathname = usePathname()
 
@@ -35,9 +47,10 @@ const AppProviders = ({ children }: ChildrenType) => {
     }, [])
 
     useEffect(() => {
-        setTimeout(() => {
-            if (window.HSStaticMethods) window.HSStaticMethods.autoInit()
+        const timerId = window.setTimeout(() => {
+            safePrelineAutoInit()
         }, 400)
+        return () => window.clearTimeout(timerId)
     }, [pathname])
 
     return (

@@ -97,9 +97,9 @@ const NavigationContent = ({ onToggleSidebar }: { onToggleSidebar: () => void })
             {/* ══════════════════════════════════════════
             TOP BAR
         ══════════════════════════════════════════ */}
-            <div className="bg-white border-b border-gray-100 shadow-sm">
+            <div className="bg-white border-b border-gray-100">
                 <div className="container mx-auto px-4">
-                    <div className="flex items-center gap-4 py-3">
+                    <div className="flex items-center gap-3 md:gap-4 py-3">
 
                         {/* Logo */}
                         <Link href="/" className="shrink-0">
@@ -107,12 +107,12 @@ const NavigationContent = ({ onToggleSidebar }: { onToggleSidebar: () => void })
                                 src={logoElectroShop}
                                 alt="EAS - Electronic Abidjan Shop"
                                 width={130}
-                                className="object-contain"
+                                className="object-contain w-[92px] md:w-[130px] h-auto"
                             />
                         </Link>
 
                         {/* Search Bar */}
-                        <div className="flex-1 max-w-2xl mx-auto">
+                        <div className="hidden md:flex flex-1 max-w-2xl mx-auto">
                             <SearchBar />
                         </div>
 
@@ -168,7 +168,7 @@ const NavigationContent = ({ onToggleSidebar }: { onToggleSidebar: () => void })
       ══════════════════════════════════════════ */}
             <nav
                 className={`
-          hidden lg:block bg-orange-50 border-b border-orange-100 py-2
+          hidden lg:block bg-orange-50/70 backdrop-blur border-b border-orange-100 py-2
           transition-all duration-300
           ${isSticky
                         ? 'fixed top-0 left-0 right-0 z-[999] shadow-md bg-white border-gray-200 animate-slideDown'
@@ -181,10 +181,10 @@ const NavigationContent = ({ onToggleSidebar }: { onToggleSidebar: () => void })
                         {/* ── Catégories → ouvre le sidebar ── */}
                         <button
                             onClick={onToggleSidebar}
-                            className="group relative flex items-center gap-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold pl-1.5 pr-5 py-1.5 rounded-full  hover:shadow-orange-300/60 hover:shadow-lg transition-all duration-300"
+                            className="group relative flex items-center gap-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold pl-1.5 pr-5 py-1.5 rounded-[100px] hover:shadow-orange-300/60 hover:shadow-lg transition-all duration-300"
                         >
                             {/* Cercle rouge avec icône */}
-                            <span className="flex items-center justify-center bg-white text-orange-500 rounded-full w-8 h-8 shadow-sm transition-transform duration-300">
+                            <span className="flex items-center justify-center bg-white text-orange-500 rounded-[100px] w-8 h-8 shadow-sm transition-transform duration-300">
                                 <IconifyIcon icon="lucide:menu" className="w-6 h-6" />
                             </span>
                             {/* Texte */}
@@ -196,14 +196,14 @@ const NavigationContent = ({ onToggleSidebar }: { onToggleSidebar: () => void })
                         <div className="flex items-center gap-1 ml-auto">
                             <Link
                                 href={isHomePage ? "#contact" : "/#contact"}
-                                className="block px-3 text-base font-semibold  hover:text-orange-600 transition-colors whitespace-nowrap leading-[3rem]"
+                                className="block px-3 text-base font-semibold hover:text-orange-600 transition-colors whitespace-nowrap leading-[3rem]"
                             >
                                 Demander un devis
                             </Link>
                             {/* Cart */}
                             <Link
                                 href="/cart"
-                                className="relative flex items-center gap-2 ml-1 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 h-9 rounded-full transition-colors"
+                                className="relative flex items-center gap-2 ml-1 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 h-9 rounded-[100px] transition-colors"
                             >
                                 <IconifyIcon icon="lucide:shopping-cart" className="h-5 w-5" />
                                 {totalItems > 0 && (
@@ -228,30 +228,30 @@ const NavigationContent = ({ onToggleSidebar }: { onToggleSidebar: () => void })
                 <div className="lg:hidden bg-white border-t border-gray-100 shadow-md z-50">
                     <div className="container mx-auto px-4 py-3">
                         {/* Mobile search */}
-                        <div className="mb-3">
+                        <div className="mb-3 md:hidden">
                             <SearchBar />
                         </div>
                         <ul className="flex flex-col gap-1">
                             <li>
                                 <button
                                     onClick={() => { onToggleSidebar(); setMobileOpen(false); }}
-                                    className="w-full text-left flex items-center gap-2 text-sm font-semibold py-2 px-3 rounded-lg hover:bg-orange-50 hover:text-orange-500 transition-colors"
+                                    className="w-full text-left flex items-center gap-2 text-sm font-semibold py-2 px-3 rounded-[100px] hover:bg-orange-50 hover:text-orange-500 transition-colors"
                                 >
                                     <IconifyIcon icon="lucide:layout-grid" className="h-4 w-4" />
                                     Toutes les catégories
                                 </button>
                             </li>
-                            {siteCategories.map(cat => (
+                            {/* {siteCategories.map(cat => (
                                 <li key={cat.id}>
                                     <Link
                                         href={`/category/${cat.id}`}
                                         onClick={() => setMobileOpen(false)}
-                                        className="block text-sm font-medium py-2 px-3 rounded-lg hover:bg-orange-50 hover:text-orange-500 transition-colors"
+                                        className="block text-sm font-medium py-2 px-3 rounded-[100px] hover:bg-orange-50 hover:text-orange-500 transition-colors"
                                     >
                                         {cat.name}
                                     </Link>
                                 </li>
-                            ))}
+                            ))} */}
                             {/* Mobile contact */}
                             <li className="mt-2 pt-2 border-t border-gray-100 flex flex-col gap-1">
                                 <a href="tel:0788008600" className="flex items-center gap-2 text-sm text-orange-500 font-semibold px-3 py-1">

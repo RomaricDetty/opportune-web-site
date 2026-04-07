@@ -11,7 +11,7 @@ function SideBar({ open, onClose }: { open: boolean; onClose: () => void }) {
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
 
-    // ✅ Fetch toutes les catégories
+    // Fetch toutes les catégories
     useEffect(() => {
         const fetchCategories = async () => {
             try {
@@ -53,14 +53,14 @@ function SideBar({ open, onClose }: { open: boolean; onClose: () => void }) {
 
                 {/* Menu items */}
                 <nav className="flex flex-col py-2 flex-1 overflow-y-auto">
-                    {/* ✅ Loader */}
+                    {/* Loader */}
                     {loading && (
                         <div className="flex items-center justify-center py-8">
                             <IconifyIcon icon="lucide:loader" className="h-6 w-6 animate-spin text-gray-400" />
                         </div>
                     )}
 
-                    {/* ✅ Liste des catégories depuis l'API */}
+                    {/* Liste des catégories depuis l'API */}
                     {!loading && categories.map((cat) => (
                         <Link
                             key={cat.id}
@@ -83,7 +83,7 @@ function SideBar({ open, onClose }: { open: boolean; onClose: () => void }) {
                         </Link>
                     ))}
 
-                    {/* ✅ Vide */}
+                    {/* Vide */}
                     {!loading && categories.length === 0 && (
                         <p className="text-center text-gray-500 text-sm py-8">
                             Aucune catégorie disponible

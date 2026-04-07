@@ -5,6 +5,8 @@ export interface Article {
   description: string
   excerpt: string
   imagePrincipale: string
+  /** Galerie additionnelle : tableau ou chaine JSON ["url1","url2"] selon l'API */
+  images?: string | string[] | null
   category: Category
   isAvailable : boolean
   discount: number

@@ -6,20 +6,9 @@ import ProductCard from './ProductCard'
 import type { Article } from '@/types/articles'
 
 /**
- * Transforme un libelle en slug URL.
- */
-const toSlug = (value: string): string => {
-    return value
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '')
-}
-/**
  * Composant Product - Affiche une sélection de produits (max 10)
  */
-const Product = ({category, products, idCategory}: {category?: string; products: Article[]; idCategory:any}) => {
+const Product = ({ category, products }: { category?: string; products: Article[] }) => {
     return (
         <section id="products" className="py-10">
             <div className="container">
@@ -28,7 +17,7 @@ const Product = ({category, products, idCategory}: {category?: string; products:
                         {category}
                     </h2>
                     <Link
-                        href={`/others?category=${toSlug(category || '')}&uid=${idCategory}`}
+                        href="/others?all=1"
                         className="flex items-center gap-1 px-3 py-2 sm:px-4 sm:py-3 bg-orange-50 hover:bg-orange-100 text-orange-500 font-semibold text-xs sm:text-sm rounded-full transition-colors whitespace-nowrap"
                     >
                         Plus D'articles

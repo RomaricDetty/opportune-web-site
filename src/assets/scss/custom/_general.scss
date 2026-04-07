@@ -6,7 +6,7 @@ html {
 }
 
 body {
-    @apply font-dm text-[15px] text-black;
+    @apply font-dm text-[15px] text-black bg-[#f8fafc];
 }
 
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
@@ -16,6 +16,10 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 p {
     @apply leading-relaxed;
     @apply font-dm;
+}
+
+section {
+    @apply relative;
 }
 
 ::selection {
