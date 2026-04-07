@@ -45,6 +45,17 @@ const generateCategorySlug = (categoryName: string): string => {
 }
 
 /**
+ * Normalise un texte pour une recherche insensible aux accents/casse.
+ */
+const normalizeSearchText = (value: string): string => {
+    return value
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim()
+}
+
+/**
  * Convertit un slug de catégorie en nom de catégorie réel
  */
 const slugToCategoryName = (slug: string): string | null => {
@@ -64,7 +75,9 @@ const isCategoryAllowed = (slug: string | null): boolean => {
  */
 const OthersPageContent = () => {
     const searchParams = useSearchParams()
-    const categorySlug = searchParams.get('category')
+    const searchQuery = (searchParams.get('search') || '').trim()
+    const rawCategoryParam = searchParams.get('category')
+    const categorySlug = rawCategoryParam ? generateCategorySlug(rawCategoryParam) : null
     const categoryUid = searchParams.get('uid') || ''
     const categoryFromUrl = categorySlug ? slugToCategoryName(categorySlug) : null
     const isCategoryValid = isCategoryAllowed(categorySlug)
@@ -75,35 +88,45 @@ const OthersPageContent = () => {
     const [viewMode, setViewMode] = useState<ViewMode>('grid')
     const [currentPage, setCurrentPage] = useState<number>(1)
     const [isFiltersOpen, setIsFiltersOpen] = useState<boolean>(false)
-    
+
     // Référence pour le scroll vers le haut lors du changement de page
     const productsSectionRef = useRef<HTMLElement>(null)
 
     // Extraire toutes les marques uniques pour la catégorie sélectionnée (ou toutes si aucune catégorie)
     const brands = useMemo(() => {
-    const uniqueBrands = Array.from(
-        new Map(
-            products
-                .map(p => p.marque)
-                .filter(Boolean)
-                .map(marque => [marque.id, marque]) // dédoublonner par id
-        ).values()
-    );
+        const uniqueBrands = Array.from(
+            new Map(
+                products
+                    .map(p => p.marque)
+                    .filter(Boolean)
+                    .map(marque => [marque.id, marque]) // dédoublonner par id
+            ).values()
+        );
 
-    return uniqueBrands
-        .sort((a, b) => a.libelle.localeCompare(b.libelle))
-        .map(marque => ({
-            id: marque.id,
-            name: marque.libelle,       // ✅ string, pas l'objet entier
-            logo: marque.logo,
-            count: products.filter(p => p.marque?.id === marque.id).length
-        }));
-}, [products, categorySlug]);
+        return uniqueBrands
+            .sort((a, b) => a.libelle.localeCompare(b.libelle))
+            .map(marque => ({
+                id: marque.id,
+                name: marque.libelle,       // string, pas l'objet entier
+                logo: marque.logo,
+                count: products.filter(p => p.marque?.id === marque.id).length
+            }));
+    }, [products, categorySlug]);
 
     // Filtrer les produits
     const filteredProducts = useMemo(() => {
-       
+
         let filtered = products
+
+        // Filtre par recherche texte
+        if (searchQuery) {
+            const normalizedQuery = normalizeSearchText(searchQuery)
+            filtered = filtered.filter((p) => {
+                const label = normalizeSearchText(String(p?.libelle || ''))
+                const description = normalizeSearchText(String(p?.description || ''))
+                return label.includes(normalizedQuery) || description.includes(normalizedQuery)
+            })
+        }
 
         // Filtre par marques
         if (selectedBrands.length > 0) {
@@ -126,7 +149,7 @@ const OthersPageContent = () => {
         }
 
         return filtered
-    }, [selectedBrands, selectedRatings, sortOption, categorySlug, products])
+    }, [selectedBrands, selectedRatings, sortOption, categorySlug, products, searchQuery])
 
     // Calculer la pagination
     const totalPages = useMemo(() => {
@@ -155,27 +178,27 @@ const OthersPageContent = () => {
 
     // Gérer les filtres appliqués
     const appliedFilters = useMemo(() => {
-    const filters: Array<{ type: string; value: string; onRemove: () => void }> = []
+        const filters: Array<{ type: string; value: string; onRemove: () => void }> = []
 
-    selectedBrands.forEach(brandId => {
-        const brand = brands.find(b => b.id === brandId) // ✅ retrouver l'objet via l'id
-        filters.push({
-            type: 'Marque',
-            value: brand?.name ?? brandId, // ✅ afficher le libelle lisible
-            onRemove: () => setSelectedBrands(prev => prev.filter(b => b !== brandId)) // ✅ supprimer par id
+        selectedBrands.forEach(brandId => {
+            const brand = brands.find(b => b.id === brandId) // retrouver l'objet via l'id
+            filters.push({
+                type: 'Marque',
+                value: brand?.name ?? brandId, // afficher le libelle lisible
+                onRemove: () => setSelectedBrands(prev => prev.filter(b => b !== brandId)) // supprimer par id
+            })
         })
-    })
 
-    selectedRatings.forEach(rating => {
-        filters.push({
-            type: 'Note',
-            value: `${rating} étoiles`,
-            onRemove: () => setSelectedRatings(prev => prev.filter(r => r !== rating))
+        selectedRatings.forEach(rating => {
+            filters.push({
+                type: 'Note',
+                value: `${rating} étoiles`,
+                onRemove: () => setSelectedRatings(prev => prev.filter(r => r !== rating))
+            })
         })
-    })
 
-    return filters
-}, [selectedBrands, selectedRatings, brands])
+        return filters
+    }, [selectedBrands, selectedRatings, brands])
 
     // Empêcher le scroll du body quand le drawer est ouvert
     useEffect(() => {
@@ -191,15 +214,15 @@ const OthersPageContent = () => {
 
     useEffect(() => {
         fetchArticlesByCategory()
-    }, [])
+    }, [categorySlug, categoryUid, searchQuery])
 
     const toggleBrand = (brandId: string) => {
-    setSelectedBrands(prev =>
-        prev.includes(brandId)
-            ? prev.filter(b => b !== brandId)
-            : [...prev, brandId]
-    )
-}
+        setSelectedBrands(prev =>
+            prev.includes(brandId)
+                ? prev.filter(b => b !== brandId)
+                : [...prev, brandId]
+        )
+    }
 
     const toggleRating = (rating: number) => {
         setSelectedRatings(prev =>
@@ -257,32 +280,62 @@ const OthersPageContent = () => {
      */
     const handlePageChange = (newPage: number) => {
         setCurrentPage(newPage)
-        
+
         // Scroll smooth vers le haut de la section des produits
         setTimeout(() => {
             if (productsSectionRef.current) {
-                productsSectionRef.current.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'start' 
+                productsSectionRef.current.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
                 })
             } else {
                 // Fallback : scroll vers le haut de la page
-                window.scrollTo({ 
-                    top: 0, 
-                    behavior: 'smooth' 
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
                 })
             }
         }, 100) // Petit délai pour laisser le temps au DOM de se mettre à jour
     }
 
     const fetchArticlesByCategory = async () => {
-          try {
-            if (!categorySlug) return;
-            const data = await articleService.getByParams('idCategory', categoryUid);
-            setProducts(Array.isArray(data) ? data : [data]);
-          } catch (err) {
-            console.error(err);
-          }
+        try {
+            // Mode recherche: pas besoin de catégorie, on charge tout puis on filtre.
+            if (searchQuery) {
+                const allData = await articleService.getAll()
+                setProducts(Array.isArray(allData) ? allData : [allData])
+                return
+            }
+
+            if (!categorySlug && !categoryUid) {
+                setProducts([])
+                return
+            }
+
+            // Priorité au uid de catégorie (cas le plus fiable depuis les sections home)
+            if (categoryUid) {
+                const data = await articleService.getByParams('idCategory', categoryUid)
+                setProducts(Array.isArray(data) ? data : [data])
+                return
+            }
+
+            // Fallback via slug de catégorie
+            if (!isCategoryValid || !categorySlug) {
+                setProducts([])
+                return
+            }
+
+            const allData = await articleService.getAll()
+            const allProducts = Array.isArray(allData) ? allData : [allData]
+            const filtered = allProducts.filter((product: any) => {
+                const productSlug = generateCategorySlug(product?.category?.libelle || '')
+                return productSlug === categorySlug
+            })
+            setProducts(filtered)
+        } catch (err) {
+            console.error(err)
+            setProducts([])
+        }
     };
 
     /**
@@ -319,7 +372,7 @@ const OthersPageContent = () => {
     )
 
     // Si la catégorie n'est pas valide ou absente, afficher le message d'erreur
-    if (!categorySlug) {
+    if (!categorySlug && !categoryUid && !searchQuery) {
         return (
             <>
                 <section className="pt-24 pb-8 min-h-screen bg-white flex items-center justify-center">
@@ -354,30 +407,28 @@ const OthersPageContent = () => {
                 <div className="container">
                     {/* En-tête avec titre et options de vue */}
                     <div className="pt-8 flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                        <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-                            {categorySlug}
+                        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 capitalize">
+                            {searchQuery ? `resultats pour "${searchQuery}"` : categorySlug}
                         </h1>
                         <div className="flex items-center gap-4">
                             {/* Options de vue */}
                             <div className="flex items-center gap-1 border border-gray-300 rounded-lg p-1 bg-white">
                                 <button
                                     onClick={() => setViewMode('grid')}
-                                    className={`px-3 py-1.5 rounded transition-colors text-sm font-medium ${
-                                        viewMode === 'grid'
+                                    className={`px-3 py-1.5 rounded transition-colors text-sm font-medium ${viewMode === 'grid'
                                             ? 'bg-[#ff6b35] text-white'
                                             : 'text-gray-700 hover:bg-gray-100'
-                                    }`}
+                                        }`}
                                     aria-label="Vue grille"
                                 >
                                     <IconifyIcon icon="lucide:grid" className="h-4 w-4" />
                                 </button>
                                 <button
                                     onClick={() => setViewMode('list')}
-                                    className={`px-3 py-1.5 rounded transition-colors text-sm font-medium ${
-                                        viewMode === 'list'
+                                    className={`px-3 py-1.5 rounded transition-colors text-sm font-medium ${viewMode === 'list'
                                             ? 'bg-[#ff6b35] text-white'
                                             : 'text-gray-700 hover:bg-gray-100'
-                                    }`}
+                                        }`}
                                     aria-label="Vue liste"
                                 >
                                     <IconifyIcon icon="lucide:list" className="h-4 w-4" />
@@ -494,11 +545,10 @@ const OthersPageContent = () => {
                                                 <button
                                                     onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                                                     disabled={currentPage === 1}
-                                                    className={`px-4 py-2 rounded-lg border transition-colors text-sm font-medium ${
-                                                        currentPage === 1
+                                                    className={`px-4 py-2 rounded-lg border transition-colors text-sm font-medium ${currentPage === 1
                                                             ? 'border-gray-300 text-gray-400 cursor-not-allowed bg-gray-50'
                                                             : 'border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-[#ff6b35] hover:text-[#ff6b35]'
-                                                    }`}
+                                                        }`}
                                                     aria-label="Page précédente"
                                                 >
                                                     <IconifyIcon icon="lucide:chevron-left" className="h-4 w-4" />
@@ -515,11 +565,10 @@ const OthersPageContent = () => {
                                                             <button
                                                                 key={page}
                                                                 onClick={() => handlePageChange(page as number)}
-                                                                className={`px-4 py-2 rounded-lg border transition-colors text-sm font-medium min-w-[40px] ${
-                                                                    currentPage === page
+                                                                className={`px-4 py-2 rounded-lg border transition-colors text-sm font-medium min-w-[40px] ${currentPage === page
                                                                         ? 'bg-[#ff6b35] text-white border-[#ff6b35]'
                                                                         : 'border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-[#ff6b35] hover:text-[#ff6b35]'
-                                                                }`}
+                                                                    }`}
                                                                 aria-label={`Page ${page}`}
                                                                 aria-current={currentPage === page ? 'page' : undefined}
                                                             >
@@ -533,11 +582,10 @@ const OthersPageContent = () => {
                                                 <button
                                                     onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                                                     disabled={currentPage === totalPages}
-                                                    className={`px-4 py-2 rounded-lg border transition-colors text-sm font-medium ${
-                                                        currentPage === totalPages
+                                                    className={`px-4 py-2 rounded-lg border transition-colors text-sm font-medium ${currentPage === totalPages
                                                             ? 'border-gray-300 text-gray-400 cursor-not-allowed bg-gray-50'
                                                             : 'border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-[#ff6b35] hover:text-[#ff6b35]'
-                                                    }`}
+                                                        }`}
                                                     aria-label="Page suivante"
                                                 >
                                                     <IconifyIcon icon="lucide:chevron-right" className="h-4 w-4" />
@@ -553,7 +601,7 @@ const OthersPageContent = () => {
                                         Aucun produit disponible pour le moment
                                     </p>
                                     <p className="text-gray-500 text-sm">
-                                        {categoryFromUrl 
+                                        {categoryFromUrl
                                             ? `Aucun produit trouvé dans la catégorie "${categoryFromUrl}"`
                                             : 'Les produits non-électroménagers seront bientôt disponibles'}
                                     </p>

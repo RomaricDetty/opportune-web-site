@@ -1,9 +1,8 @@
 "use client"
-import React from 'react'
+import React, { useEffect } from 'react'
 import Link from 'next/link'
 import Footer from '@/components/Footer'
 import IconifyIcon from '@/components/wrappers/IconifyIcon'
-import { useCartContext } from '@/context/useCartContext'
 import TestNavbar from '@/components/TestNavbar'
 import SideBar from '@/components/SideBar'
 
@@ -11,14 +10,101 @@ import SideBar from '@/components/SideBar'
  * Page Panier
  */
 const CartPage = () => {
-    const { cartItems, removeFromCart, updateQuantity, clearCart, getTotalPrice } = useCartContext()
-    const totalPrice = getTotalPrice()
+    const CART_STORAGE_KEY = 'cart'
     const [sidebarOpen, setSidebarOpen] = React.useState(false)
+    const [cartItems, setCartItems] = React.useState<any[]>([])
 
+    /**
+     * Normalise un item panier vers un format unique pour l'UI.
+     */
+    const normalizeCartItem = (item: any) => {
+        if (item?.product) {
+            return {
+                id: item.product.id,
+                libelle: item.product.libelle,
+                imagePrincipale: item.product.imagePrincipale,
+                discount: item.product.discount ?? 0,
+                quantite_minimale: item.product.quantite_minimale ?? 1,
+                marque: item.product.marque,
+                category: item.product.category,
+                quantity: item.quantity ?? 1,
+            }
+        }
+        return {
+            id: item?.id,
+            libelle: item?.libelle ?? 'Article',
+            imagePrincipale: item?.imagePrincipale ?? '',
+            discount: item?.discount ?? 0,
+            quantite_minimale: item?.quantite_minimale ?? 1,
+            marque: item?.marque,
+            category: item?.category,
+            quantity: item?.quantity ?? 1,
+        }
+    }
+
+    /**
+     * Charge le panier depuis localStorage (compatible plusieurs formats).
+     */
+    const loadCartFromStorage = () => {
+        try {
+            const rawCart = localStorage.getItem(CART_STORAGE_KEY)
+            const parsed = rawCart ? JSON.parse(rawCart) : []
+            const normalized = Array.isArray(parsed) ? parsed.map(normalizeCartItem) : []
+            setCartItems(normalized)
+        } catch {
+            setCartItems([])
+        }
+    }
+
+    /**
+     * Sauvegarde le panier en localStorage puis met a jour l'etat local.
+     */
+    const saveCartToStorage = (items: any[]) => {
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items))
+        setCartItems(items)
+    }
+
+    /**
+     * Supprime un produit du panier localStorage.
+     */
+    const removeFromCart = (productId: string) => {
+        const nextItems = cartItems.filter((item) => item?.id !== productId)
+        saveCartToStorage(nextItems)
+    }
+
+    /**
+     * Met a jour la quantite d'un produit du panier localStorage.
+     */
+    const updateQuantity = (productId: string, quantity: number) => {
+        const item = cartItems.find((entry) => entry?.id === productId)
+        if (!item) return
+
+        const minQuantity = getMinQuantity(item)
+        if (quantity < minQuantity) {
+            removeFromCart(productId)
+            return
+        }
+
+        const nextItems = cartItems.map((entry) =>
+            entry?.id === productId ? { ...entry, quantity } : entry
+        )
+        saveCartToStorage(nextItems)
+    }
+
+    /**
+     * Vide le panier localStorage.
+     */
+    const clearCart = () => {
+        saveCartToStorage([])
+    }
+
+    useEffect(() => {
+        loadCartFromStorage()
+    }, [])
 
     // Obtenir la quantité minimale d'un produit
     const getMinQuantity = (product: any): number => {
-        return product.minQuantity || 1
+        return product.quantite_minimale || 1
     }
 
     // Construit un libelle marque/categorie robuste meme si des donnees manquent
@@ -70,40 +156,40 @@ const CartPage = () => {
                         {/* Liste des articles */}
                         <div className="lg:col-span-2 space-y-4">
                             {cartItems.map((item) => {
-                                const minQuantity = getMinQuantity(item.product)
+                                const minQuantity = getMinQuantity(item)
                                 const isMinQuantity = item.quantity === minQuantity
 
                                 return (
                                     <div
-                                        key={item.product.id}
+                                        key={item.id}
                                         className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:gap-6"
                                     >
                                         {/* Image */}
-                                        <Link href={`/products/${item.product.id}`} className="flex-shrink-0 self-center sm:self-start">
+                                        <Link href={`/others/${item.id}`} className="flex-shrink-0 self-center sm:self-start">
                                             <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 bg-gray-50 rounded-lg overflow-hidden">
-                                                {item.product.discount > 0 && (
+                                                {/* {item.product.discount > 0 && (
                                                     <div className="absolute top-2 left-2 z-10 bg-[#ff6b35] text-white text-xs font-bold px-2 py-1 rounded">
                                                         -{item.product.discount}%
                                                     </div>
-                                                )}
-                                                <img
+                                                )} */}
+                                                {/* <img
                                                     src={item.product.imagePrincipale}
                                                     alt={item.product.libelle}
                                                     className="w-full h-full object-contain p-2"
-                                                />
+                                                /> */}
                                             </div>
                                         </Link>
 
                                         {/* Informations */}
                                         <div className="flex-1 flex flex-col justify-between min-w-0">
                                             <div className="flex-1">
-                                                <Link href={`/products/${item.product.id}`}>
+                                                <Link href={`/others/${item.id}`}>
                                                     <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-2 hover:text-[#ff6b35] transition-colors line-clamp-2">
-                                                        {item.product.libelle}
+                                                        {item.libelle}
                                                     </h3>
                                                 </Link>
                                                 <p className="text-xs sm:text-sm text-gray-600 mb-2">
-                                                    {getProductMetaLabel(item.product)}
+                                                    {getProductMetaLabel(item)}
                                                 </p>
                                                 {/* Prix retiré */}
                                                 {minQuantity > 1 && (
@@ -117,7 +203,7 @@ const CartPage = () => {
                                             <div className="flex items-center justify-between mt-4 flex-wrap gap-3">
                                                 <div className="flex items-center gap-2 sm:gap-3">
                                                     <button
-                                                        onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                                                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
                                                         disabled={isMinQuantity}
                                                         className={`w-8 h-8 flex items-center justify-center border border-gray-300 rounded transition-colors ${
                                                             isMinQuantity 
@@ -132,7 +218,7 @@ const CartPage = () => {
                                                         {item.quantity}
                                                     </div>
                                                     <button
-                                                        onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                                                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
                                                         className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100 transition-colors"
                                                         title="Augmenter"
                                                     >
@@ -140,7 +226,7 @@ const CartPage = () => {
                                                     </button>
                                                 </div>
                                                 <button
-                                                    onClick={() => removeFromCart(item.product.id)}
+                                                    onClick={() => removeFromCart(item.id)}
                                                     className="text-red-600 hover:text-red-700 transition-colors flex items-center gap-1 sm:gap-2"
                                                 >
                                                     <IconifyIcon icon="lucide:trash-2" className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -190,7 +276,7 @@ const CartPage = () => {
                                 </Link>
 
                                 <Link
-                                    href="/products"
+                                    href="/"
                                     className="block text-center text-sm sm:text-base text-gray-600 hover:text-[#ff6b35] transition-colors font-medium"
                                 >
                                     Continuer les achats

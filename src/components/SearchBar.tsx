@@ -15,7 +15,7 @@ const SearchBar = () => {
     const searchRef = useRef<HTMLDivElement>(null)
     const debounceRef = useRef<NodeJS.Timeout>()
 
-    // ✅ Fermer le dropdown en cliquant ailleurs
+    // Fermer le dropdown en cliquant ailleurs
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
             if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
@@ -26,7 +26,7 @@ const SearchBar = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside)
     }, [])
 
-    // ✅ Debounce pour éviter trop de requêtes
+    // Debounce pour éviter trop de requêtes
     const handleSearch = (value: string) => {
         setQuery(value)
         clearTimeout(debounceRef.current)
@@ -42,7 +42,7 @@ const SearchBar = () => {
                 setLoading(true)
                 const data = await articleService.getByParams('libelle', value)
                 const items = Array.isArray(data) ? data : [data]
-                setResults(items.slice(0, 8)) // ✅ max 8 résultats
+                setResults(items.slice(0, 8)) // max 8 résultats
                 setIsOpen(true)
             } catch {
                 setResults([])
@@ -58,7 +58,7 @@ const SearchBar = () => {
         setIsOpen(false)
     }
 
-    // ✅ Surligner le texte trouvé
+    // Surligner le texte trouvé
     const highlight = (text: string, search: string) => {
         if (!search) return text
         const regex = new RegExp(`(${search})`, 'gi')
@@ -100,7 +100,7 @@ const SearchBar = () => {
                 </button>
             </div>
 
-            {/* ✅ Dropdown résultats */}
+            {/* Dropdown résultats */}
             {isOpen && (
                 <div className="absolute top-[calc(100%+8px)] left-0 right-0 bg-white rounded-2xl shadow-xl border border-gray-100 z-[9999] overflow-hidden">
 
@@ -111,7 +111,7 @@ const SearchBar = () => {
                                 {results.map((article) => (
                                     <Link
                                         key={article.id}
-                                        href={`/products/${article.id}`}
+                                        href={`/others/${article.id}`}
                                         onClick={() => setIsOpen(false)}
                                         className="flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors"
                                     >
@@ -148,11 +148,11 @@ const SearchBar = () => {
                                 ))}
                             </div>
 
-                            {/* ✅ Footer - voir tous les résultats */}
+                            {/* Footer - voir tous les résultats */}
                             <div className="border-t border-gray-100 px-4 py-2.5 bg-gray-50">
                                 <button
                                     onClick={() => {
-                                        router.push(`/products?search=${query}`)
+                                        router.push(`/others?search=${encodeURIComponent(query.trim())}`)
                                         setIsOpen(false)
                                     }}
                                     className="w-full text-center text-xs font-semibold text-primary hover:text-primaryDark transition-colors flex items-center justify-center gap-1"
@@ -163,7 +163,7 @@ const SearchBar = () => {
                             </div>
                         </>
                     ) : (
-                        // ✅ Aucun résultat
+                        // Aucun résultat
                         !loading && (
                             <div className="flex flex-col items-center justify-center py-8 gap-2 text-gray-400">
                                 <IconifyIcon icon="lucide:search-x" className="h-8 w-8" />

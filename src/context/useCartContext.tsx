@@ -1,5 +1,5 @@
 'use client'
-import { Article } from '../types/articles' // ✅ Article depuis l'API au lieu de ProductData
+import { Article } from '../types/articles'
 import {
     type ReactNode,
     createContext,
@@ -7,16 +7,22 @@ import {
     useState,
     useMemo,
     useEffect,
+    useRef,
 } from 'react'
 
 export interface CartItem {
-    product: Article  // ✅ Article au lieu de ProductData
+    product: Article
+    quantity: number
+}
+
+interface PersistedCartItem {
+    product: Article
     quantity: number
 }
 
 interface CartContextType {
     cartItems: CartItem[]
-    addToCart: (product: Article, quantity?: number) => void   // ✅
+    addToCart: (product: Article, quantity?: number) => void
     removeFromCart: (productId: string) => void
     updateQuantity: (productId: string, quantity: number) => void
     clearCart: () => void
@@ -26,6 +32,107 @@ interface CartContextType {
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
+const CART_STORAGE_KEY = 'cart'
+const CART_FALLBACK_KEY = 'cart_fallback'
+
+const safeGetItem = (storage: Storage, key: string): string | null => {
+    try {
+        return storage.getItem(key)
+    } catch {
+        return null
+    }
+}
+
+const safeSetItem = (storage: Storage, key: string, value: string): boolean => {
+    try {
+        storage.setItem(key, value)
+        return true
+    } catch {
+        return false
+    }
+}
+
+const safeRemoveItem = (storage: Storage, key: string) => {
+    try {
+        storage.removeItem(key)
+    } catch {
+        // no-op
+    }
+}
+
+const sanitizeProductForCart = (product: Article): Article => {
+    return {
+        id: product.id,
+        libelle: product.libelle,
+        slug: product.slug ?? '',
+        description: '',
+        excerpt: '',
+        imagePrincipale: product.imagePrincipale ?? '',
+        category: {
+            id: product.category?.id ?? '',
+            libelle: product.category?.libelle ?? '',
+        },
+        isAvailable: Boolean(product.isAvailable),
+        discount: Number(product.discount ?? 0),
+        prix: Number(product.prix ?? 0),
+        quantite_stock: 0,
+        quantite_minimale: Number(product.quantite_minimale ?? 1),
+        created_at: '',
+        updated_at: '',
+        marque: {
+            id: product.marque?.id ?? '',
+            libelle: product.marque?.libelle ?? '',
+        },
+    }
+}
+
+const persistCartSafely = (items: CartItem[]) => {
+    const compactItems: PersistedCartItem[] = items.map((item) => ({
+        product: sanitizeProductForCart(item.product),
+        quantity: item.quantity,
+    }))
+    const payload = JSON.stringify(compactItems)
+
+    const writtenInLocal = safeSetItem(localStorage, CART_STORAGE_KEY, payload)
+    if (writtenInLocal) {
+        safeRemoveItem(sessionStorage, CART_FALLBACK_KEY)
+        return
+    }
+
+    safeSetItem(sessionStorage, CART_FALLBACK_KEY, payload)
+}
+
+const clearPersistedCart = () => {
+    safeRemoveItem(localStorage, CART_STORAGE_KEY)
+    safeRemoveItem(sessionStorage, CART_FALLBACK_KEY)
+}
+
+/**
+ * Lit et désérialise le panier depuis le storage.
+ * Appelé une seule fois comme lazy initializer de useState.
+ * Retourne [] si on est côté serveur ou si le storage est vide/corrompu.
+ */
+const loadCartFromStorage = (): CartItem[] => {
+    if (typeof window === 'undefined') return []
+
+    try {
+        const savedCart =
+            safeGetItem(localStorage, CART_STORAGE_KEY) ||
+            safeGetItem(sessionStorage, CART_FALLBACK_KEY)
+
+        if (!savedCart) return []
+
+        const parsedCart = JSON.parse(savedCart) as PersistedCartItem[]
+        return parsedCart
+            .filter((item) => item?.product?.id)
+            .map((item) => ({
+                product: sanitizeProductForCart(item.product),
+                quantity: Math.max(1, Number(item.quantity || 1)),
+            }))
+    } catch {
+        return []
+    }
+}
 
 export function useCartContext() {
     const context = useContext(CartContext)
@@ -36,49 +143,40 @@ export function useCartContext() {
 }
 
 function CartProvider({ children }: Readonly<{ children: ReactNode }>) {
-    const [cartItems, setCartItems] = useState<CartItem[]>([])
-    const [isClient, setIsClient] = useState(false)
+    // Le lazy initializer est appelé une seule fois, de manière synchrone,
+    // avant le premier render. Pas de useEffect, pas de timing à gérer.
+    const [cartItems, setCartItems] = useState<CartItem[]>(loadCartFromStorage)
+    const isMounted = useRef(false)
 
     useEffect(() => {
-        setIsClient(true)
-    }, [])
-
-    useEffect(() => {
-        if (!isClient) return
-        const savedCart = localStorage.getItem('cart')
-        if (savedCart) {
-            try {
-                setCartItems(JSON.parse(savedCart))
-            } catch (error) {
-                console.error('Error loading cart from localStorage:', error)
-            }
+        // On ignore le tout premier appel (montage initial) pour ne pas
+        // persister [] si le localStorage était déjà peuplé avant le render.
+        if (!isMounted.current) {
+            isMounted.current = true
+            return
         }
-    }, [isClient])
+        persistCartSafely(cartItems)
+    }, [cartItems])
 
-    useEffect(() => {
-        if (!isClient) return
-        localStorage.setItem('cart', JSON.stringify(cartItems))
-    }, [cartItems, isClient])
-
-    // ✅ minQuantity depuis Article (adapter selon la structure de ton type Article)
     const getMinQuantity = (product: Article): number => {
         return product.quantite_minimale || 1
     }
 
     const addToCart = (product: Article, quantity: number = 1) => {
+        const safeProduct = sanitizeProductForCart(product)
         const minQuantity = getMinQuantity(product)
         const quantityToAdd = Math.max(quantity, minQuantity)
 
         setCartItems((prevItems) => {
-            const existingItem = prevItems.find((item) => item.product.id === product.id)
+            const existingItem = prevItems.find((item) => item.product.id === safeProduct.id)
             if (existingItem) {
                 return prevItems.map((item) =>
-                    item.product.id === product.id
+                    item.product.id === safeProduct.id
                         ? { ...item, quantity: item.quantity + quantityToAdd }
                         : item
                 )
             }
-            return [...prevItems, { product, quantity: quantityToAdd }]
+            return [...prevItems, { product: safeProduct, quantity: quantityToAdd }]
         })
     }
 
@@ -106,12 +204,14 @@ function CartProvider({ children }: Readonly<{ children: ReactNode }>) {
         )
     }
 
-    const clearCart = () => setCartItems([])
+    const clearCart = () => {
+        setCartItems([])
+        clearPersistedCart()
+    }
 
     const getTotalItems = () =>
         cartItems.reduce((total, item) => total + item.quantity, 0)
 
-    // ✅ currentPrice → adapter selon ton type Article (ex: prix, price, currentPrice...)
     const getTotalPrice = () =>
         cartItems.reduce(
             (total, item) => total + item.product.prix * item.quantity,

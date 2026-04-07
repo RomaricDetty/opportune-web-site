@@ -1,15 +1,104 @@
 import IconifyIcon from '@/components/wrappers/IconifyIcon'
 import React from 'react'
-import { useCartContext } from '@/context/useCartContext'
 import { useRouter } from 'next/navigation'
 import { demandeDevisService } from '@/services/demandeDevisService' // ✅ à créer
 
 const Checkout = () => {
     const router = useRouter()
-    const { cartItems, removeFromCart, updateQuantity, clearCart, getTotalPrice } = useCartContext()
-    const totalPrice = getTotalPrice()
+    const CART_STORAGE_KEY = 'cart'
+    const [cartItems, setCartItems] = React.useState<any[]>([])
+
+    /**
+     * Normalise un item panier vers un format unique pour le checkout.
+     */
+    const normalizeCartItem = (item: any) => {
+        if (item?.product) {
+            return {
+                id: item.product.id,
+                libelle: item.product.libelle,
+                imagePrincipale: item.product.imagePrincipale,
+                quantite_minimale: item.product.quantite_minimale ?? 1,
+                quantity: item.quantity ?? 1,
+            }
+        }
+        return {
+            id: item?.id,
+            libelle: item?.libelle ?? 'Article',
+            imagePrincipale: item?.imagePrincipale ?? '',
+            quantite_minimale: item?.quantite_minimale ?? 1,
+            quantity: item?.quantity ?? 1,
+        }
+    }
+
+    /**
+     * Charge le panier depuis localStorage.
+     */
+    const loadCartFromStorage = () => {
+        try {
+            const rawCart = localStorage.getItem(CART_STORAGE_KEY)
+            const parsed = rawCart ? JSON.parse(rawCart) : []
+            const normalized = Array.isArray(parsed) ? parsed.map(normalizeCartItem) : []
+            setCartItems(normalized)
+        } catch {
+            setCartItems([])
+        }
+    }
+
+    /**
+     * Sauvegarde le panier dans localStorage et met a jour l'etat.
+     */
+    const saveCartToStorage = (items: any[]) => {
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items))
+        setCartItems(items)
+    }
+
+    /**
+     * Supprime un produit du panier.
+     */
+    const removeFromCart = (productId: string) => {
+        const nextItems = cartItems.filter((item) => item?.id !== productId)
+        saveCartToStorage(nextItems)
+    }
+
+    /**
+     * Met a jour la quantite d'un produit.
+     */
+    const updateQuantity = (productId: string, quantity: number) => {
+        const item = cartItems.find((entry) => entry?.id === productId)
+        if (!item) return
+
+        const minQuantity = getMinQuantity(item)
+        if (quantity < minQuantity) {
+            removeFromCart(productId)
+            return
+        }
+
+        const nextItems = cartItems.map((entry) =>
+            entry?.id === productId ? { ...entry, quantity } : entry
+        )
+        saveCartToStorage(nextItems)
+    }
+
+    /**
+     * Vide le panier.
+     */
+    const clearCart = () => {
+        saveCartToStorage([])
+    }
+
+    React.useEffect(() => {
+        loadCartFromStorage()
+    }, [])
 
     const getMinQuantity = (product: any): number => product.quantite_minimale || 1
+
+    /**
+     * Retourne une URL d'image valide ou null.
+     */
+    const getSafeImageSrc = (value?: string | null): string | null => {
+        if (!value || !value.trim()) return null
+        return value
+    }
 
     const [isLoading, setIsLoading] = React.useState(false)
     const [error, setError] = React.useState<string | null>(null)
@@ -51,7 +140,7 @@ const Checkout = () => {
                 adresse:      donnees.adresse || null,
                 message:      donnees.message || null,
                 items: cartItems.map(item => ({
-                    idProduit: item.product.id,
+                    idProduit: item.id,
                     quantite:  item.quantity
                 }))
             }
@@ -225,25 +314,29 @@ const Checkout = () => {
                                 <p className="text-center text-gray-400 text-sm py-8">Votre panier est vide</p>
                             ) : (
                                 cartItems.map((item) => {
-                                    const minQuantity = getMinQuantity(item.product)
+                                    const minQuantity = getMinQuantity(item)
                                     const isMinQuantity = item.quantity === minQuantity
                                     return (
-                                        <div key={item.product.id} className="flex gap-3 py-4">
+                                        <div key={item.id} className="flex gap-3 py-4">
                                             <div className="w-24 h-24 rounded-xl bg-orange-light flex items-center justify-center flex-shrink-0">
-                                                <img
-                                                    src={item.product.imagePrincipale}
-                                                    alt={item.product.libelle}
-                                                    className="w-full h-full object-contain"
-                                                />
+                                                {getSafeImageSrc(item.imagePrincipale) ? (
+                                                    <img
+                                                        src={getSafeImageSrc(item.imagePrincipale) as string}
+                                                        alt={item.libelle}
+                                                        className="w-full h-full object-contain"
+                                                    />
+                                                ) : (
+                                                    <IconifyIcon icon="lucide:image-off" className="h-8 w-8 text-gray-300" />
+                                                )}
                                             </div>
                                             <div className="flex-1 flex flex-col justify-between">
                                                 <div className="font-sora font-bold text-sm text-dark">
-                                                    {item.product.libelle}
+                                                    {item.libelle}
                                                 </div>
                                                 <div className="flex items-center justify-between flex-wrap gap-3">
                                                     <div className="flex items-center gap-2">
                                                         <button
-                                                            onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                                                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
                                                             disabled={isMinQuantity}
                                                             className={`w-7 h-7 flex items-center justify-center border border-gray-300 rounded transition-colors ${isMinQuantity ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:bg-gray-100'}`}
                                                         >
@@ -253,14 +346,14 @@ const Checkout = () => {
                                                             {item.quantity}
                                                         </span>
                                                         <button
-                                                            onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                                                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
                                                             className="w-7 h-7 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100 transition-colors"
                                                         >
                                                             <IconifyIcon icon="lucide:plus" className="h-4 w-4" />
                                                         </button>
                                                     </div>
                                                     <button
-                                                        onClick={() => removeFromCart(item.product.id)}
+                                                        onClick={() => removeFromCart(item.id)}
                                                         className="text-red-500 hover:text-red-600 transition-colors"
                                                     >
                                                         <IconifyIcon icon="lucide:trash-2" className="h-4 w-4" />

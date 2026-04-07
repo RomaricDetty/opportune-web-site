@@ -1,8 +1,8 @@
 "use client"
 import Link from 'next/link'
 import IconifyIcon from '@/components/wrappers/IconifyIcon'
-import { useCartContext } from '@/context/useCartContext'
 import type { Article } from '@/types/articles'
+import { useCartContext } from '@/context/useCartContext'
 
 /**
  * Props du composant ProductCard
@@ -10,15 +10,23 @@ import type { Article } from '@/types/articles'
 interface ProductCardProps {
     product: Article
     viewMode?: 'grid' | 'list'
-    productType?: 'electromenager' | 'other' // Nouveau prop pour différencier les types
+    productType?: 'other' // Nouveau prop pour différencier les types
 }
 
 /**
  * Composant ProductCard - Affiche une carte de produit
  */
-const ProductCard = ({ product, viewMode = 'grid', productType = 'electromenager' }: ProductCardProps) => {
+const ProductCard = ({ product, viewMode = 'grid', productType = 'other' }: ProductCardProps) => {
     const { addToCart, isInCart } = useCartContext()
     const inCart = isInCart(String(product.id))
+
+    /**
+     * Retourne une URL d'image valide ou null.
+     */
+    const getSafeImageSrc = (value?: string | null): string | null => {
+        if (!value || !value.trim()) return null
+        return value
+    }
 
     const handleAddToCart = (e: React.MouseEvent) => {
         e.preventDefault()
@@ -67,8 +75,10 @@ const ProductCard = ({ product, viewMode = 'grid', productType = 'electromenager
     }
 
     // Déterminer le chemin selon le type de produit
-    // const productPath = productType === 'other' ? `/others/${product.id}` : `/products/${product.id}`
-    const productPath = `/products/${product.id}`;
+    const productPath =
+        productType === 'other'
+            ? `/others/${product.id}`
+            : `/others/${product.id}`
     
     if (viewMode === 'list') {
         return (
@@ -81,11 +91,17 @@ const ProductCard = ({ product, viewMode = 'grid', productType = 'electromenager
                                 -{product.discount}%
                             </div>
                         )}
-                        <img
-                            src={product.imagePrincipale}
-                            alt={product.libelle}
-                            className="w-full h-full object-contain p-2"
-                        />
+                        {getSafeImageSrc(product.imagePrincipale) ? (
+                            <img
+                                src={getSafeImageSrc(product.imagePrincipale) as string}
+                                alt={product.libelle}
+                                className="w-full h-full object-contain p-2"
+                            />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                                <IconifyIcon icon="lucide:image-off" className="h-8 w-8 text-gray-300" />
+                            </div>
+                        )}
                     </div>
 
                     {/* Contenu */}
@@ -145,11 +161,15 @@ const ProductCard = ({ product, viewMode = 'grid', productType = 'electromenager
 
                 {/* Image du produit */}
                 <div className="relative w-full h-64 flex items-center justify-center bg-gray-50 overflow-hidden">
-                    <img
-                        src={product.imagePrincipale}
-                        alt={product.libelle}
-                        className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300"
-                    />
+                    {getSafeImageSrc(product.imagePrincipale) ? (
+                        <img
+                            src={getSafeImageSrc(product.imagePrincipale) as string}
+                            alt={product.libelle}
+                            className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300"
+                        />
+                    ) : (
+                        <IconifyIcon icon="lucide:image-off" className="h-10 w-10 text-gray-300" />
+                    )}
                 </div>
 
                 {/* Contenu de la carte */}

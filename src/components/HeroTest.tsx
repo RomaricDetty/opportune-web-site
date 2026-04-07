@@ -48,7 +48,7 @@ const getFirstImage = (images: string | null): string | null => {
 
 const getLinkForPublicite = (pub: Publicite): string => {
     if (pub.idCategory && pub.category) return `/categories/${pub.idCategory}`
-    if (pub.idProduit  && pub.produit)  return `/products/${pub.idProduit}`
+    if (pub.idProduit && pub.produit) return `/products/${pub.idProduit}`
     return '/'
 }
 
@@ -65,13 +65,13 @@ const announcementTexts: string[] = [
 // ─── Composant Hero ───────────────────────────────────────────────────────────
 
 const HeroTest = () => {
-    const [currentIndex,      setCurrentIndex]      = useState(0)
+    const [currentIndex, setCurrentIndex] = useState(0)
     const [announcementIndex, setAnnouncementIndex] = useState(0)
-    const [categoryIndex,     setCategoryIndex]     = useState(0)
+    const [categoryIndex, setCategoryIndex] = useState(0)
 
     const [publicites, setPublicites] = useState<PublicitesGrouped>({
         publicites_categories: [],
-        publicites_articles:   []
+        publicites_articles: []
     })
     const [loading, setLoading] = useState(true)
 
@@ -79,11 +79,11 @@ const HeroTest = () => {
     useEffect(() => {
         const fetchPublicites = async () => {
             try {
-                const res  = await axiosInstance.get<any>('/publicites?grouped=true&isActive=true')
+                const res = await axiosInstance.get<any>('/publicites?grouped=true&isActive=true')
                 const data = await res.data
                 if (data.success) setPublicites({
                     publicites_categories: data.data.publicites_categories ?? [],
-                    publicites_articles:   data.data.publicites_articles   ?? []
+                    publicites_articles: data.data.publicites_articles ?? []
                 })
             } catch (error) {
                 console.error('Erreur chargement publicités :', error)
@@ -95,22 +95,22 @@ const HeroTest = () => {
     }, [])
 
     // ── Carousel articles (gauche) ────────────────────────────────────────────
-useEffect(() => {
-    if (!publicites.publicites_articles?.length || publicites.publicites_articles.length <= 1) return
-    const interval = setInterval(() => {
-        setCurrentIndex(prev => (prev + 1) % publicites.publicites_articles.length)
-    }, 5000)
-    return () => clearInterval(interval)
-}, [publicites.publicites_articles])
+    useEffect(() => {
+        if (!publicites.publicites_articles?.length || publicites.publicites_articles.length <= 1) return
+        const interval = setInterval(() => {
+            setCurrentIndex(prev => (prev + 1) % publicites.publicites_articles.length)
+        }, 5000)
+        return () => clearInterval(interval)
+    }, [publicites.publicites_articles])
 
-// ── Carousel catégories (droite) ──────────────────────────────────────────
-useEffect(() => {
-    if (!publicites.publicites_categories?.length || publicites.publicites_categories.length <= 1) return
-    const interval = setInterval(() => {
-        setCategoryIndex(prev => (prev + 1) % publicites.publicites_categories.length)
-    }, 6000)
-    return () => clearInterval(interval)
-}, [publicites.publicites_categories])
+    // ── Carousel catégories (droite) ──────────────────────────────────────────
+    useEffect(() => {
+        if (!publicites.publicites_categories?.length || publicites.publicites_categories.length <= 1) return
+        const interval = setInterval(() => {
+            setCategoryIndex(prev => (prev + 1) % publicites.publicites_categories.length)
+        }, 6000)
+        return () => clearInterval(interval)
+    }, [publicites.publicites_categories])
 
     // ── Carousel annonces (bandeau) ───────────────────────────────────────────
     useEffect(() => {
@@ -120,7 +120,7 @@ useEffect(() => {
         return () => clearInterval(interval)
     }, [])
 
-    const currentArticlePub  = publicites.publicites_articles?.[currentIndex]   ?? null
+    const currentArticlePub = publicites.publicites_articles?.[currentIndex] ?? null
     const currentCategoryPub = publicites.publicites_categories?.[categoryIndex] ?? null
 
     return (
@@ -154,11 +154,10 @@ useEffect(() => {
                                             <button
                                                 key={index}
                                                 onClick={() => setAnnouncementIndex(index)}
-                                                className={`h-1.5 rounded-full transition-all duration-300 ${
-                                                    announcementIndex === index
+                                                className={`h-1.5 rounded-full transition-all duration-300 ${announcementIndex === index
                                                         ? 'bg-white w-6'
                                                         : 'bg-[#ff6b35] w-1.5 hover:bg-[#ff6b35]'
-                                                }`}
+                                                    }`}
                                                 aria-label={`Annonce ${index + 1}`}
                                             />
                                         ))}
@@ -234,11 +233,10 @@ useEffect(() => {
                                             <button
                                                 key={index}
                                                 onClick={() => setCurrentIndex(index)}
-                                                className={`h-2 rounded-full transition-all duration-300 ${
-                                                    currentIndex === index
+                                                className={`h-2 rounded-full transition-all duration-300 ${currentIndex === index
                                                         ? 'bg-primary w-8'
                                                         : 'bg-gray-300 w-2 hover:bg-gray-400'
-                                                }`}
+                                                    }`}
                                                 aria-label={`Publicité ${index + 1}`}
                                             />
                                         ))}
@@ -309,11 +307,10 @@ useEffect(() => {
                                                     <button
                                                         key={index}
                                                         onClick={(e) => { e.preventDefault(); setCategoryIndex(index) }}
-                                                        className={`h-2 rounded-full transition-all duration-300 ${
-                                                            categoryIndex === index
+                                                        className={`h-2 rounded-full transition-all duration-300 ${categoryIndex === index
                                                                 ? 'bg-[#ff6b35] w-8'
                                                                 : 'bg-gray-300 w-2 hover:bg-gray-400'
-                                                        }`}
+                                                            }`}
                                                         aria-label={`Catégorie ${index + 1}`}
                                                     />
                                                 ))}

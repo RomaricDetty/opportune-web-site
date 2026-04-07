@@ -82,8 +82,8 @@ const OtherProductDetailPageContent = () => {
     const categoryBackUrl = useMemo(() => {
         if (!product) return '/others'
         return categorySlug
-            ? `/others?category=${categorySlug}`
-            : `/others?category=${generateCategorySlug(product.category.libelle)}`
+            ? `/others?category=${categorySlug}&uid=${product.category.id}`
+            : `/others?category=${generateCategorySlug(product.category.libelle)}&uid=${product.category.id}`
     }, [product, categorySlug])
 
     if (loading) {
