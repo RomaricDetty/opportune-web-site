@@ -48,7 +48,7 @@ const getFirstImage = (images: string | null): string | null => {
 
 const getLinkForPublicite = (pub: Publicite): string => {
     if (pub.idCategory && pub.category) return `/categories/${pub.idCategory}`
-    if (pub.idProduit && pub.produit) return `/products/${pub.idProduit}`
+    if (pub.idProduit && pub.produit) return `/others/${pub.idProduit}`
     return '/'
 }
 
