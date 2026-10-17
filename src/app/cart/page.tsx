@@ -1,222 +1,139 @@
-"use client"
-import React from 'react'
+'use client'
+
 import Link from 'next/link'
-import Footer from '@/components/Footer'
-import IconifyIcon from '@/components/wrappers/IconifyIcon'
-import TestNavbar from '@/components/TestNavbar'
-import SideBar from '@/components/SideBar'
+import ShopLayout from '@/components/shop/ShopLayout'
+import Button from '@/components/ui/Button'
+import Surface from '@/components/ui/Surface'
+import EmptyState from '@/components/ui/EmptyState'
 import { useCartContext } from '@/context/useCartContext'
+import { formatXof, priceAfterDiscount } from '@/lib/formatPrice'
+import ProductImage from '@/components/shop/ProductImage'
 
 /**
- * Page Panier
+ * Page panier.
  */
-const CartPage = () => {
-    const [sidebarOpen, setSidebarOpen] = React.useState(false)
-    const { cartItems, removeFromCart, updateQuantity, clearCart } = useCartContext()
-
-    /**
-     * Normalise un item du contexte vers un format d'affichage.
-     */
-    const viewCartItems = React.useMemo(() => {
-        return cartItems.map((item) => ({
-            id: item.product.id,
-            libelle: item.product.libelle,
-            imagePrincipale: item.product.imagePrincipale,
-            discount: item.product.discount ?? 0,
-            quantite_minimale: item.product.quantite_minimale ?? 1,
-            marque: item.product.marque,
-            category: item.product.category,
-            quantity: item.quantity ?? 1,
-        }))
-    }, [cartItems])
-
-    // Obtenir la quantité minimale d'un produit
-    const getMinQuantity = (product: any): number => {
-        return product.quantite_minimale || 1
-    }
-
-    // Construit un libelle marque/categorie robuste meme si des donnees manquent
-    const getProductMetaLabel = (product: any): string => {
-        const marqueLabel = product?.marque?.libelle ?? 'Marque non specifiee'
-        const categoryLabel = product?.category?.libelle ?? 'Categorie non specifiee'
-        return `${marqueLabel} • ${categoryLabel}`
-    }
-
-
-    if (viewCartItems.length === 0) {
-        return (
-            <>
-                <TestNavbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-                <SideBar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-                <section className="pt-24 pb-20 min-h-screen bg-[#f8fafc]">
-                    <div className="container pt-8">
-                        <div className="text-center py-12">
-                            <IconifyIcon 
-                                icon="lucide:shopping-cart" 
-                                className="h-24 w-24 text-gray-300 mx-auto mb-6"
-                            />
-                            <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                                Votre panier est vide
-                            </h1>
-                            <p className="text-gray-600 mb-8">
-                                Ajoutez des produits à votre panier pour commencer vos achats.
-                            </p>
-                            
-                        </div>
-                    </div>
-                </section>
-                <Footer />
-            </>
-        )
-    }
+export default function CartPage() {
+    const { cartItems, updateQuantity, removeFromCart, getTotalPrice, clearCart } = useCartContext()
 
     return (
-        <>
-            <TestNavbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-            <SideBar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-            <section className="pt-24 pb-20 min-h-screen bg-[#f8fafc]">
-                <div className="container pt-8 px-4 sm:px-6">
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-6 md:mb-8">
-                        Mon panier ({viewCartItems.length} {viewCartItems.length > 1 ? 'articles' : 'article'})
-                    </h1>
+        <ShopLayout>
+            <div className="container py-8 font-dm">
+                <h1 className="text-2xl md:text-3xl font-bold text-secondary mb-6">Panier</h1>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-                        {/* Liste des articles */}
-                        <div className="lg:col-span-2 space-y-4">
-                            {viewCartItems.map((item) => {
-                                const minQuantity = getMinQuantity(item)
-                                const isMinQuantity = item.quantity === minQuantity
-
+                {cartItems.length === 0 ? (
+                    <EmptyState
+                        icon="lucide:shopping-cart"
+                        title="Votre panier est vide"
+                        description="Parcourez la boutique et ajoutez vos articles."
+                        actionHref="/shop"
+                        actionLabel="Continuer vos achats"
+                    />
+                ) : (
+                    <div className="grid lg:grid-cols-3 gap-6">
+                        <div className="lg:col-span-2 space-y-3">
+                            {cartItems.map((item) => {
+                                const remise = Number(
+                                    item.product.discount ?? item.product.remise ?? 0
+                                )
+                                const unit = priceAfterDiscount(item.product.prix, remise)
                                 return (
-                                    <div
-                                        key={item.id}
-                                        className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:gap-6"
+                                    <Surface
+                                        key={item.product.id}
+                                        padding="sm"
+                                        className="flex gap-4"
                                     >
-                                        {/* Image */}
-                                        <Link href={`/others/${item.id}`} className="flex-shrink-0 self-center sm:self-start">
-                                            <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 bg-gray-50 rounded-xl overflow-hidden">
-                                                {/* {item.product.discount > 0 && (
-                                                    <div className="absolute top-2 left-2 z-10 bg-[#ff6b35] text-white text-xs font-bold px-2 py-1 rounded">
-                                                        -{item.product.discount}%
-                                                    </div>
-                                                )} */}
-                                                {/* <img
-                                                    src={item.product.imagePrincipale}
-                                                    alt={item.product.libelle}
-                                                    className="w-full h-full object-contain p-2"
-                                                /> */}
-                                            </div>
-                                        </Link>
-
-                                        {/* Informations */}
-                                        <div className="flex-1 flex flex-col justify-between min-w-0">
-                                            <div className="flex-1">
-                                                <Link href={`/others/${item.id}`}>
-                                                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-2 hover:text-[#ff6b35] transition-colors line-clamp-2">
-                                                        {item.libelle}
-                                                    </h3>
-                                                </Link>
-                                                <p className="text-xs sm:text-sm text-gray-600 mb-2">
-                                                    {getProductMetaLabel(item)}
-                                                </p>
-                                                {/* Prix retiré */}
-                                                {minQuantity > 1 && (
-                                                    <p className="text-xs text-[#ff6b35] font-medium mt-1">
-                                                        Quantité minimale : {minQuantity}
-                                                    </p>
-                                                )}
-                                            </div>
-
-                                            {/* Contrôles de quantité */}
-                                            <div className="flex items-center justify-between mt-4 flex-wrap gap-3">
-                                                <div className="flex items-center gap-2 sm:gap-3">
+                                        <div className="h-20 w-20 bg-gray-50 rounded-xl overflow-hidden shrink-0">
+                                            <ProductImage
+                                                src={item.product.imagePrincipale}
+                                                alt=""
+                                                width={160}
+                                                className="h-full w-full object-contain p-1"
+                                            />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <Link
+                                                href={`/product/${item.product.id}`}
+                                                className="font-semibold text-secondary hover:text-primary line-clamp-2"
+                                            >
+                                                {item.product.libelle}
+                                            </Link>
+                                            <p className="text-sm text-primary font-bold mt-1">
+                                                {formatXof(unit)}
+                                            </p>
+                                            <div className="mt-2 flex items-center gap-3">
+                                                <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
                                                     <button
-                                                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                                        disabled={isMinQuantity}
-                                                        className={`w-8 h-8 flex items-center justify-center border border-gray-300 rounded transition-colors ${
-                                                            isMinQuantity 
-                                                                ? 'opacity-50 cursor-not-allowed bg-gray-100' 
-                                                                : 'hover:bg-gray-100'
-                                                        }`}
-                                                        title={isMinQuantity ? `Quantité minimale : ${minQuantity}` : 'Diminuer'}
+                                                        type="button"
+                                                        className="px-2 py-1"
+                                                        onClick={() =>
+                                                            updateQuantity(
+                                                                item.product.id,
+                                                                item.quantity - 1
+                                                            )
+                                                        }
                                                     >
-                                                        <IconifyIcon icon="lucide:minus" className="h-4 w-4" />
+                                                        −
                                                     </button>
-                                                    <div className="text-base sm:text-lg font-semibold text-gray-900 min-w-[2.5rem] sm:min-w-[3rem] text-center">
+                                                    <span className="px-3 text-sm font-semibold">
                                                         {item.quantity}
-                                                    </div>
+                                                    </span>
                                                     <button
-                                                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                                        className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100 transition-colors"
-                                                        title="Augmenter"
+                                                        type="button"
+                                                        className="px-2 py-1"
+                                                        onClick={() =>
+                                                            updateQuantity(
+                                                                item.product.id,
+                                                                item.quantity + 1
+                                                            )
+                                                        }
                                                     >
-                                                        <IconifyIcon icon="lucide:plus" className="h-4 w-4" />
+                                                        +
                                                     </button>
                                                 </div>
                                                 <button
-                                                    onClick={() => removeFromCart(item.id)}
-                                                    className="text-red-600 hover:text-red-700 transition-colors flex items-center gap-1 sm:gap-2"
+                                                    type="button"
+                                                    onClick={() => removeFromCart(item.product.id)}
+                                                    className="text-xs text-red-500 font-medium"
                                                 >
-                                                    <IconifyIcon icon="lucide:trash-2" className="h-4 w-4 sm:h-5 sm:w-5" />
-                                                    <span className="text-xs sm:text-sm font-medium hidden xs:inline">Supprimer</span>
+                                                    Retirer
                                                 </button>
                                             </div>
                                         </div>
-                                    </div>
+                                        <p className="text-sm font-bold text-secondary shrink-0">
+                                            {formatXof(unit * item.quantity)}
+                                        </p>
+                                    </Surface>
                                 )
                             })}
-
-                            {/* Bouton vider le panier */}
-                            <div className="flex justify-end">
-                                <button
-                                    onClick={clearCart}
-                                    className="text-red-600 hover:text-red-700 transition-colors flex items-center gap-2 font-medium text-sm sm:text-base"
-                                >
-                                    <IconifyIcon icon="lucide:trash-2" className="h-4 w-4 sm:h-5 sm:w-5" />
-                                    Vider le panier
-                                </button>
-                            </div>
                         </div>
 
-                        {/* Résumé de commande */}
-                        <div className="lg:col-span-1">
-                            <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 lg:sticky lg:top-24">
-                                <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">
-                                    Résumé de commande
-                                </h2>
-
-                                <div className="space-y-4 mb-4 sm:mb-6">
-                                    {/* Résumé de commande - Prix retirés */}
-                                    <div className="border-t border-gray-200 pt-4">
-                                        <p className="text-sm sm:text-base text-gray-600 text-center">
-                                            Demandez un devis personnalisé pour vos articles
-                                        </p>
-
-                                    </div>
-                                </div>
-
-                                <Link
-                                    href="/checkout"
-                                    className="w-full bg-[#ff6b35] hover:bg-[#ff6b35] text-white py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-colors font-semibold text-base sm:text-lg flex items-center justify-center gap-2 mb-4"
-                                >
-                                    <IconifyIcon icon="lucide:file-text" className="h-4 w-4 sm:h-5 sm:w-5" />
-                                    Demander un devis
-                                </Link>
-
-                                <Link
-                                    href="/"
-                                    className="block text-center text-sm sm:text-base text-gray-600 hover:text-[#ff6b35] transition-colors font-medium"
-                                >
-                                    Continuer les achats
-                                </Link>
+                        <Surface className="h-fit">
+                            <h2 className="font-bold text-secondary mb-4">Récapitulatif</h2>
+                            <div className="flex justify-between text-sm mb-2">
+                                <span className="text-muted">Sous-total</span>
+                                <span className="font-semibold">{formatXof(getTotalPrice())}</span>
                             </div>
-                        </div>
+                            <div className="flex justify-between text-base font-bold border-t border-gray-100 pt-3 mt-3">
+                                <span>Total</span>
+                                <span className="text-primary">{formatXof(getTotalPrice())}</span>
+                            </div>
+                            <Button href="/checkout" fullWidth className="mt-5 rounded-xl">
+                                Passer commande
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                fullWidth
+                                size="sm"
+                                onClick={clearCart}
+                                className="mt-2"
+                            >
+                                Vider le panier
+                            </Button>
+                        </Surface>
                     </div>
-                </div>
-            </section>
-            <Footer />
-        </>
+                )}
+            </div>
+        </ShopLayout>
     )
 }
-
-export default CartPage

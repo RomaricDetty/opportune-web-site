@@ -10,7 +10,14 @@ export interface Article {
   category: Category
   isAvailable : boolean
   discount: number
+  /** Remise % (alias API) */
+  remise?: number
+  /** Mis en avant (coups de cœur) */
+  featured?: boolean
   prix: number
+  devise?: string
+  caracteristiques?: Record<string, string> | string[] | null
+  reference?: string
   quantite_stock: number
   quantite_minimale: number
   created_at: string

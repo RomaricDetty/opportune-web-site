@@ -1,0 +1,13 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+    title: 'Mon compte',
+    robots: { index: false, follow: false },
+}
+
+/**
+ * Layout compte client (non indexé).
+ */
+export default function AccountLayout({ children }: { children: React.ReactNode }) {
+    return children
+}

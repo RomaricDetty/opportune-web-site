@@ -1,0 +1,39 @@
+/* Motion boutique — respect reduced-motion */
+
+:root {
+  --shop-bottom-cta: 0px;
+}
+
+/* Espace bas : barres fixes + safe-area iOS (footer entièrement scrollable) */
+.shop-page-shell {
+  padding-bottom: calc(
+    var(--shop-bottom-cta, 0px) + env(safe-area-inset-bottom, 0px) + 1.25rem
+  );
+}
+
+.shop-shimmer {
+  background: linear-gradient(
+    90deg,
+    #f3f4f6 0%,
+    #fff4ef 45%,
+    #f3f4f6 90%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .shop-shimmer {
+    animation: none;
+    background: #f3f4f6;
+  }
+}

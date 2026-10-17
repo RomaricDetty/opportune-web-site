@@ -1,86 +1,123 @@
-"use client"
-import React, { useEffect } from "react";
-import Navigation from "@/components/Navigation";
-import SideBar from "@/components/SideBar";
-import Footer from "@/components/Footer";
-import Topbar from "@/components/TopBar";
-import Swiperslider from "@/components/Swiperslider";
-import Brands from "@/components/Brands";
-import Product from "@/components/Products";
-import Features from "@/components/Features";
-// import Nouveaute from "@/components/Nouveaute";
-import About from "@/components/About";
-// import Pricing from "@/components/Pricing";
-// import Faqs from "@/components/Faqs";
-// import Testimonials from "@/components/Testimonials";
-// import Blog from "@/components/Blog";
-import Contact from "@/components/Contact";
-// import Newsletter from "@/components/Newsletter";
-import Hero from "@/components/Hero";
-import Delivery from "@/components/Delivery";
+'use client'
 
-import "swiper/css";
-import Pricing from "@/components/Pricing";
-import TestNavbar from "@/components/TestNavbar";
-import { articleService } from "@/services/articleService";
-import Link from "next/link";
-import IconifyIcon from "@/components/wrappers/IconifyIcon";
-import HeroTest from "@/components/HeroTest";
+import { useEffect, useMemo, useState } from 'react'
+import IconifyIcon from '@/components/wrappers/IconifyIcon'
+import ShopLayout from '@/components/shop/ShopLayout'
+import HeroBanner from '@/components/shop/HeroBanner'
+import FeaturesBar from '@/components/shop/FeaturesBar'
+import ProductSection from '@/components/shop/ProductSection'
+import ProductGridSkeleton from '@/components/shop/ProductGridSkeleton'
+import Button from '@/components/ui/Button'
+import { articleService } from '@/services/articleService'
+import type { Article } from '@/types/articles'
+import { priceAfterDiscount } from '@/lib/formatPrice'
+import Reveal from '@/components/ui/Reveal'
 
-function page() {
-    const [sidebarOpen, setSidebarOpen] = React.useState(false);
-    const [loading, setLoading] = React.useState(true)
-    const [articles, setArticles] = React.useState<any[]>([])
-
-    const fetchArticles = async () => {
-        try {
-            const response = await articleService.getAllHome()
-            setArticles(Array.isArray(response) ? response : [response])
-            console.log('articles ==> ', response)
-        } catch (error) {
-            console.error('Error fetching articles:', error)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    useEffect(() => {
-        fetchArticles()
-    }, [])
-    return (
-        <>
-            {/* <Topbar /> */}
-            <TestNavbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-            {/* <Navigation onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} /> */}
-            <SideBar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-            <HeroTest />
-            {/* <Brands /> */}
-            {/* <Delivery /> */}
-
-            {articles.slice(0, 5).map((article: any, index) => {
-                return (
-                    <Product key={index} category={article?.category} products={article.produits} />
-                )
-            })}
-
-            {articles.length > 5 && (
-                <div className="flex justify-center mb-4">
-                    <Link
-                        href="/others?all=1"
-                        className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primaryDark text-white text-sm font-semibold rounded-full transition-colors shadow-sm"
-                    >
-                        Voir tous les articles
-                        <IconifyIcon icon="lucide:arrow-right" className="h-4 w-4" />
-                    </Link>
-                </div>
-            )}
-            {/* <Product />
-            <Product /> */}
-            <Contact />
-            <Footer />
-        </>
-    );
+interface HomeGroup {
+    category?: { id?: string; libelle?: string }
+    categoryId?: string
+    produits?: Article[]
 }
 
-export default page;
+/**
+ * Sélectionne les coups de cœur (promo ou featured).
+ * @param groups
+ */
+function pickFeatured(groups: HomeGroup[]): Article[] {
+    const all = groups.flatMap((g) => g.produits || [])
+    const seen = new Set<string>()
+    const unique = all.filter((p) => {
+        const id = String(p.id)
+        if (seen.has(id)) return false
+        seen.add(id)
+        return true
+    })
 
+    const withPromo = unique.filter((p) => Number(p.discount ?? p.remise ?? 0) > 0)
+    const withFeatured = unique.filter((p) => Boolean((p as Article & { featured?: boolean }).featured))
+    const pool = withPromo.length >= 2 ? withPromo : withFeatured.length ? withFeatured : unique
+
+    return [...pool]
+        .sort((a, b) => {
+            const ra = Number(a.discount ?? a.remise ?? 0)
+            const rb = Number(b.discount ?? b.remise ?? 0)
+            if (rb !== ra) return rb - ra
+            return priceAfterDiscount(a.prix, ra) - priceAfterDiscount(b.prix, rb)
+        })
+        .slice(0, 4)
+}
+
+/**
+ * Page d'accueil boutique (structure type aobishop).
+ */
+export default function HomePage() {
+    const [groups, setGroups] = useState<HomeGroup[]>([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        articleService
+            .getAllHome()
+            .then((response) => {
+                const list = Array.isArray(response) ? response : [response]
+                setGroups(list as HomeGroup[])
+            })
+            .catch(() => setGroups([]))
+            .finally(() => setLoading(false))
+    }, [])
+
+    const featured = useMemo(() => pickFeatured(groups), [groups])
+
+    return (
+        <ShopLayout
+            top={
+                <>
+                    <HeroBanner />
+                    <FeaturesBar />
+                </>
+            }
+        >
+            {loading && (
+                <div className="container py-8 font-dm">
+                    <div className="h-7 w-48 bg-gray-200/80 rounded animate-pulse mb-5" />
+                    <ProductGridSkeleton count={4} />
+                </div>
+            )}
+
+            {!loading && featured.length > 0 && (
+                <ProductSection
+                    title="Coups de cœur"
+                    products={featured}
+                    href="/shop?sort=newest"
+                />
+            )}
+
+            {!loading &&
+                groups.map((group, index) => {
+                    const categoryLabel =
+                        typeof group.category === 'string'
+                            ? group.category
+                            : group.category?.libelle || 'Nos produits'
+                    const categoryId = group.categoryId || group.category?.id
+                    return (
+                        <ProductSection
+                            key={categoryId || index}
+                            title={categoryLabel}
+                            products={group.produits || []}
+                            href={categoryId ? `/shop?category=${categoryId}` : '/shop'}
+                        />
+                    )
+                })}
+
+            {!loading && groups.length > 0 && (
+                <Reveal>
+                    <div className="flex justify-center pb-12 pt-2">
+                        <Button href="/shop" size="lg" className="rounded-xl">
+                            Voir tous les articles
+                            <IconifyIcon icon="lucide:arrow-right" className="h-4 w-4" />
+                        </Button>
+                    </div>
+                </Reveal>
+            )}
+        </ShopLayout>
+    )
+}

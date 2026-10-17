@@ -84,7 +84,8 @@ const sanitizeProductForCart = (product: Article): Article => {
             libelle: product.category?.libelle ?? '',
         },
         isAvailable: Boolean(product.isAvailable),
-        discount: Number(product.discount ?? 0),
+        discount: Number(product.discount ?? product.remise ?? 0),
+        remise: Number(product.remise ?? product.discount ?? 0),
         prix: Number(product.prix ?? 0),
         quantite_stock: 0,
         quantite_minimale: Number(product.quantite_minimale ?? 1),
@@ -200,6 +201,9 @@ function CartProvider({ children }: Readonly<{ children: ReactNode }>) {
             }
             return [...prevItems, { product: safeProduct, quantity: quantityToAdd }]
         })
+        if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('shop:cart-bounce'))
+        }
     }
 
     const removeFromCart = (productId: string) => {
@@ -235,10 +239,11 @@ function CartProvider({ children }: Readonly<{ children: ReactNode }>) {
         cartItems.reduce((total, item) => total + item.quantity, 0)
 
     const getTotalPrice = () =>
-        cartItems.reduce(
-            (total, item) => total + item.product.prix * item.quantity,
-            0
-        )
+        cartItems.reduce((total, item) => {
+            const remise = Number(item.product.discount ?? item.product.remise ?? 0)
+            const unit = Math.round((Number(item.product.prix) || 0) * (1 - Math.min(Math.max(remise, 0), 100) / 100))
+            return total + unit * item.quantity
+        }, 0)
 
     const isInCart = (productId: string) =>
         cartItems.some((item) => item.product.id === productId)
