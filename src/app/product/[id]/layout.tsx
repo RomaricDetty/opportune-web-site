@@ -5,19 +5,12 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'
 
 interface ProductLayoutProps {
     children: React.ReactNode
-    params: Promise<{ id: string }> | { id: string }
-}
-
-/**
- * Résout les params Next (sync ou async selon version).
- */
-async function resolveParams(params: ProductLayoutProps['params']) {
-    return params instanceof Promise ? params : params
+    params: Promise<{ id: string }>
 }
 
 /**
  * Charge un produit pour SEO / JSON-LD.
- * @param id
+ * @param id - Identifiant produit
  */
 async function fetchProduct(id: string) {
     const res = await fetch(`${API_BASE}/products/${id}`, { next: { revalidate: 300 } })
@@ -30,7 +23,7 @@ async function fetchProduct(id: string) {
  * Métadonnées SEO de la fiche produit.
  */
 export async function generateMetadata({ params }: ProductLayoutProps): Promise<Metadata> {
-    const { id } = await resolveParams(params)
+    const { id } = await params
 
     try {
         const product = await fetchProduct(id)
@@ -71,7 +64,7 @@ export async function generateMetadata({ params }: ProductLayoutProps): Promise<
  * Layout fiche produit (SEO serveur + JSON-LD Product).
  */
 export default async function ProductLayout({ children, params }: ProductLayoutProps) {
-    const { id } = await resolveParams(params)
+    const { id } = await params
     let jsonLd: Record<string, unknown> | null = null
 
     try {
