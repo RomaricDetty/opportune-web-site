@@ -3,6 +3,7 @@ import IconifyIcon from '@/components/wrappers/IconifyIcon'
 import BrandLogo from '@/components/shop/BrandLogo'
 import Button from '@/components/ui/Button'
 import Reveal from '@/components/ui/Reveal'
+import SocialLinks from '@/components/shop/SocialLinks'
 import { STORE_PHONE_DISPLAY, STORE_PHONE_TEL, whatsappUrl } from '@/lib/storeContact'
 
 const links = [
@@ -111,6 +112,7 @@ export default function ShopFooter() {
                         <p className="mt-2 text-sm text-muted leading-relaxed">
                             Un conseiller vous oriente vers le bon produit, au bon prix.
                         </p>
+                        <SocialLinks className="mt-4" />
                         <Link
                             href="/contact"
                             className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primaryDark"

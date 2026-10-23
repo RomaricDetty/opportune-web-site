@@ -100,6 +100,14 @@ function buildRemotePatterns(): NonNullable<NextConfig["images"]>["remotePattern
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  webpack: (config, { dev }) => {
+    if (dev) {
+      config.watchOptions = {
+        ignored: ["**/node_modules/**", "**/.next/**", "**/.git/**"],
+      };
+    }
+    return config;
+  },
   images: {
     remotePatterns: buildRemotePatterns(),
   },

@@ -1,42 +1,32 @@
-"use client"
-import Link from 'next/link'
+import ShopLayout from '@/components/shop/ShopLayout'
+import Button from '@/components/ui/Button'
 import IconifyIcon from '@/components/wrappers/IconifyIcon'
-import TestNavbar from '@/components/TestNavbar'
-import SideBar from '@/components/SideBar'
-import Footer from '@/components/Footer'
-import { useState } from 'react'
 
 /**
- * Affiche une page 404 personnalisee pour les routes inexistantes.
+ * Page 404 alignée sur le layout boutique.
  */
 export default function NotFound() {
-    const [sidebarOpen, setSidebarOpen] = useState(false)
-
     return (
-        <>
-            <TestNavbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-            <SideBar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-            <section className="pt-24 pb-20 min-h-screen bg-white flex items-center">
-                <div className="container px-4">
-                    <div className="max-w-2xl mx-auto text-center">
-                        <p className="text-[#ff6b35] font-semibold tracking-wide mb-3">ERREUR 404</p>
-                        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
-                            Page introuvable
-                        </h1>
-                        <p className="text-gray-600 text-base md:text-lg mb-8">
-                            La page que vous cherchez n&apos;existe pas ou a ete deplacee.
-                        </p>
-                        <Link
-                            href="/"
-                            className="inline-flex items-center gap-2 px-6 py-3 bg-[#ff6b35] text-white font-semibold rounded-lg hover:bg-[#e55a2b] transition-colors"
-                        >
-                            <IconifyIcon icon="lucide:arrow-left" className="h-5 w-5" />
-                            Retour a l&apos;accueil
-                        </Link>
+        <ShopLayout>
+            <section className="container py-16 md:py-24 font-dm">
+                <div className="mx-auto max-w-lg text-center">
+                    <p className="mb-3 text-sm font-semibold tracking-wide text-primary">
+                        ERREUR 404
+                    </p>
+                    <h1 className="text-3xl font-bold text-secondary md:text-4xl">
+                        Page introuvable
+                    </h1>
+                    <p className="mt-3 text-gray-500">
+                        La page que vous cherchez n&apos;existe pas ou a été déplacée.
+                    </p>
+                    <div className="mt-8 flex justify-center">
+                        <Button href="/" size="lg">
+                            <IconifyIcon icon="lucide:arrow-left" className="h-4 w-4" />
+                            Retour à l&apos;accueil
+                        </Button>
                     </div>
                 </div>
             </section>
-            <Footer />
-        </>
+        </ShopLayout>
     )
 }

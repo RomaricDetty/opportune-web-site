@@ -44,10 +44,10 @@ function Footer() {
                                 contact@electrostoreci.com
                             </a>
                             <a
-                                href="tel:+2250758085854"
+                                href="tel:+2250503033689"
                                 className="hover:text-white transition-colors"
                             >
-                                (+225) 07 58 08 58 54
+                                (+225) 05 03 033 689
                             </a>
                         </div>
                     </div>

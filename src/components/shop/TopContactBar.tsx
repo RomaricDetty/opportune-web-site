@@ -1,4 +1,5 @@
 import IconifyIcon from '@/components/wrappers/IconifyIcon'
+import SocialLinks from '@/components/shop/SocialLinks'
 import { STORE_PHONE_DISPLAY, STORE_PHONE_TEL, whatsappUrl } from '@/lib/storeContact'
 
 /**
@@ -29,6 +30,7 @@ export default function TopContactBar() {
                         <IconifyIcon icon="lucide:message-circle" className="h-3.5 w-3.5 text-primary" />
                         <span className="hidden sm:inline">WhatsApp</span>
                     </a>
+                    <SocialLinks variant="dark" className="hidden sm:flex" />
                 </div>
             </div>
         </div>

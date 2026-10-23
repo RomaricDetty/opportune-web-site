@@ -9,11 +9,15 @@ import ShopPagination from '@/components/shop/ShopPagination'
 import ShopFilters from '@/components/shop/ShopFilters'
 import Breadcrumb from '@/components/shop/Breadcrumb'
 import EmptyState from '@/components/ui/EmptyState'
+import IconifyIcon from '@/components/wrappers/IconifyIcon'
+import { cn } from '@/lib/cn'
 import { articleService } from '@/services/articleService'
 import { siteCategoryService } from '@/services/siteCategoryService'
 import type { Article } from '@/types/articles'
 
 const PAGE_SIZE = 12
+
+type ShopView = 'grid' | 'list'
 
 /**
  * Contenu catalogue (dépend de useSearchParams).
@@ -36,6 +40,7 @@ function ShopContent() {
     const [titleLabel, setTitleLabel] = useState('Boutique')
     const [total, setTotal] = useState(0)
     const [totalPages, setTotalPages] = useState(1)
+    const [view, setView] = useState<ShopView>('grid')
 
     useEffect(() => {
         let cancelled = false
@@ -126,9 +131,41 @@ function ShopContent() {
             <Breadcrumb items={crumbs} />
             <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
                 <h1 className="text-2xl md:text-3xl font-bold text-secondary">{titleLabel}</h1>
-                {!loading && total > 0 && (
-                    <p className="text-sm text-muted">{total} produit{total > 1 ? 's' : ''}</p>
-                )}
+                <div className="flex items-center gap-3">
+                    {!loading && total > 0 && (
+                        <p className="text-sm text-muted">{total} produit{total > 1 ? 's' : ''}</p>
+                    )}
+                    <div className="inline-flex rounded-xl border border-gray-200 bg-white p-0.5">
+                        <button
+                            type="button"
+                            onClick={() => setView('grid')}
+                            aria-label="Vue grille"
+                            aria-pressed={view === 'grid'}
+                            className={cn(
+                                'inline-flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
+                                view === 'grid'
+                                    ? 'bg-primary text-white'
+                                    : 'text-muted hover:text-primary',
+                            )}
+                        >
+                            <IconifyIcon icon="lucide:layout-grid" className="h-4 w-4" />
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setView('list')}
+                            aria-label="Vue liste"
+                            aria-pressed={view === 'list'}
+                            className={cn(
+                                'inline-flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
+                                view === 'list'
+                                    ? 'bg-primary text-white'
+                                    : 'text-muted hover:text-primary',
+                            )}
+                        >
+                            <IconifyIcon icon="lucide:layout-list" className="h-4 w-4" />
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <ShopFilters />
@@ -152,9 +189,19 @@ function ShopContent() {
 
             {!loading && products.length > 0 && (
                 <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
+                    <div
+                        className={
+                            view === 'list'
+                                ? 'flex flex-col gap-3'
+                                : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4'
+                        }
+                    >
                         {products.map((product) => (
-                            <ShopProductCard key={product.id} product={product} />
+                            <ShopProductCard
+                                key={product.id}
+                                product={product}
+                                variant={view}
+                            />
                         ))}
                     </div>
                     <ShopPagination

@@ -127,10 +127,10 @@ const NavigationContent = ({ onToggleSidebar }: { onToggleSidebar: () => void })
                                 <div className="leading-tight">
                                     <p className="text-[15px] text-gray-500 font-medium">Commandez au</p>
                                     <a
-                                        href="tel:+2250758085854"
+                                        href="tel:+2250503033689"
                                         className="text-sm font-bold text-orange-500 hover:text-orange-600 transition-colors"
                                     >
-                                        07 58 08 58 54
+                                        05 03 033 689
                                     </a>
                                 </div>
                             </div>
@@ -254,9 +254,9 @@ const NavigationContent = ({ onToggleSidebar }: { onToggleSidebar: () => void })
                             ))} */}
                             {/* Mobile contact */}
                             <li className="mt-2 pt-2 border-t border-gray-100 flex flex-col gap-1">
-                                <a href="tel:+2250758085854" className="flex items-center gap-2 text-sm text-orange-500 font-semibold px-3 py-1">
+                                <a href="tel:+2250503033689" className="flex items-center gap-2 text-sm text-orange-500 font-semibold px-3 py-1">
                                     <IconifyIcon icon="lucide:phone-call" className="h-4 w-4" />
-                                    07 58 08 58 54
+                                    05 03 033 689
                                 </a>
                             </li>
                         </ul>

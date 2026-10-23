@@ -33,7 +33,7 @@ function Topbar() {
                         </svg>
                         <div>
                             <div className="text-xs text-gray-500 font-medium">24/7 Support</div>
-                            <div className="text-sm font-bold text-gray-800">+225 0757240518</div>
+                            <div className="text-sm font-bold text-gray-800">(+225) 05 03 033 689</div>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">

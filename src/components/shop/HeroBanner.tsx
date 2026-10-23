@@ -2,60 +2,30 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import IconifyIcon from '@/components/wrappers/IconifyIcon'
 import Button from '@/components/ui/Button'
-import axiosInstance from '@/lib/axios'
+import { adHref, getAdImage, type ShopPublicite } from '@/lib/adSlots'
 import {
     optimizeProductImage,
     PRODUCT_IMAGE_PLACEHOLDER,
 } from '@/lib/productImage'
+import AdPlaceholder from './AdPlaceholder'
 
-interface Publicite {
-    id: string
-    libelle: string
-    description: string | null
-    images: string | null
-    idCategory: string | null
-    idProduit: string | null
-}
-
-/**
- * Extrait la première image d'une publicité.
- * @param images
- */
-function getFirstImage(images: string | null): string | null {
-    if (!images) return null
-    try {
-        const parsed = typeof images === 'string' ? JSON.parse(images) : images
-        return Array.isArray(parsed) && parsed[0] ? parsed[0] : null
-    } catch {
-        return null
-    }
+interface HeroBannerProps {
+    ads?: ShopPublicite[]
+    isLoading?: boolean
 }
 
 /**
  * Carousel hero des publicités — plein cadre, marque visible.
  */
-export default function HeroBanner() {
-    const [slides, setSlides] = useState<Publicite[]>([])
+export default function HeroBanner({ ads = [], isLoading = false }: HeroBannerProps) {
+    const slides = ads
     const [index, setIndex] = useState(0)
 
     useEffect(() => {
-        axiosInstance
-            .get('/publicites')
-            .then((res) => {
-                const data = res.data?.data
-                const list = Array.isArray(data)
-                    ? data
-                    : [
-                          ...(data?.publicites_articles || []),
-                          ...(data?.publicites_categories || []),
-                      ]
-                setSlides(list.filter((p: Publicite) => getFirstImage(p.images)))
-            })
-            .catch(() => setSlides([]))
-    }, [])
+        setIndex(0)
+    }, [slides.length])
 
     useEffect(() => {
         if (slides.length <= 1) return
@@ -65,49 +35,22 @@ export default function HeroBanner() {
         return () => clearInterval(timer)
     }, [slides.length])
 
+    if (isLoading && slides.length === 0) {
+        return <div className="min-h-[280px] md:min-h-[420px] bg-secondary/10 animate-pulse" />
+    }
+
     if (slides.length === 0) {
         return (
-            <section className="relative overflow-hidden font-dm bg-secondary text-white">
-                <div className="absolute inset-0">
-                    <Image
-                        src="/brand/hero-electro.jpg"
-                        alt=""
-                        fill
-                        priority
-                        className="object-cover opacity-35"
-                        sizes="100vw"
-                    />
-                    <div className="absolute inset-0 bg-secondary/70" />
-                </div>
-                <div className="container relative flex min-h-[300px] md:min-h-[420px] items-center py-12">
-                    <div className="max-w-xl">
-                        <p className="text-primary text-sm font-semibold tracking-[0.2em] uppercase mb-3">
-                            Electro Store.ci
-                        </p>
-                        <h1 className="text-3xl md:text-5xl font-bold leading-[1.1]">
-                            L’électroménager et le high-tech, au juste prix
-                        </h1>
-                        <p className="mt-4 text-white/75 text-sm md:text-base max-w-md leading-relaxed">
-                            Prix en FCFA. Livraison en Côte d&apos;Ivoire.
-                        </p>
-                        <Button href="/shop" size="lg" className="mt-7">
-                            Voir la boutique
-                            <IconifyIcon icon="lucide:arrow-right" className="h-4 w-4" />
-                        </Button>
-                    </div>
-                </div>
+            <section className="relative overflow-hidden font-dm">
+                <AdPlaceholder variant="hero" />
             </section>
         )
     }
 
     const current = slides[index]
-    const href = current.idProduit
-        ? `/product/${current.idProduit}`
-        : current.idCategory
-          ? `/shop?category=${current.idCategory}`
-          : '/shop'
+    const href = adHref(current)
     const image =
-        optimizeProductImage(getFirstImage(current.images), 1100) ||
+        optimizeProductImage(getAdImage(current.images), 1100) ||
         PRODUCT_IMAGE_PLACEHOLDER
 
     return (

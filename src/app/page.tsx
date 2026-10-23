@@ -4,7 +4,10 @@ import { useEffect, useMemo, useState } from 'react'
 import IconifyIcon from '@/components/wrappers/IconifyIcon'
 import ShopLayout from '@/components/shop/ShopLayout'
 import HeroBanner from '@/components/shop/HeroBanner'
+import AdSlot from '@/components/shop/AdSlot'
 import FeaturesBar from '@/components/shop/FeaturesBar'
+import { adsForSlot, type ShopPublicite } from '@/lib/adSlots'
+import { fetchPublicites } from '@/services/publiciteService'
 import ProductSection from '@/components/shop/ProductSection'
 import ProductGridSkeleton from '@/components/shop/ProductGridSkeleton'
 import Button from '@/components/ui/Button'
@@ -52,16 +55,19 @@ function pickFeatured(groups: HomeGroup[]): Article[] {
  */
 export default function HomePage() {
     const [groups, setGroups] = useState<HomeGroup[]>([])
+    const [ads, setAds] = useState<ShopPublicite[]>([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        articleService
-            .getAllHome()
-            .then((response) => {
+        Promise.all([
+            articleService.getAllHome().catch(() => []),
+            fetchPublicites().catch(() => [] as ShopPublicite[]),
+        ])
+            .then(([response, publicites]) => {
                 const list = Array.isArray(response) ? response : [response]
                 setGroups(list as HomeGroup[])
+                setAds(publicites)
             })
-            .catch(() => setGroups([]))
             .finally(() => setLoading(false))
     }, [])
 
@@ -71,7 +77,7 @@ export default function HomePage() {
         <ShopLayout
             top={
                 <>
-                    <HeroBanner />
+                    <HeroBanner ads={adsForSlot(ads, 'hero')} isLoading={loading} />
                     <FeaturesBar />
                 </>
             }
@@ -91,6 +97,8 @@ export default function HomePage() {
                 />
             )}
 
+            {!loading && <AdSlot ads={adsForSlot(ads, 'home_mid')} />}
+
             {!loading &&
                 groups.map((group, index) => {
                     const categoryLabel =
@@ -107,6 +115,8 @@ export default function HomePage() {
                         />
                     )
                 })}
+
+            {!loading && <AdSlot ads={adsForSlot(ads, 'home_bottom')} />}
 
             {!loading && groups.length > 0 && (
                 <Reveal>

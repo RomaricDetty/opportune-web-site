@@ -10,6 +10,7 @@ import Input from '@/components/ui/Input'
 import Textarea from '@/components/ui/Textarea'
 import Surface from '@/components/ui/Surface'
 import PageHero from '@/components/ui/PageHero'
+import SocialLinks from '@/components/shop/SocialLinks'
 import { STORE_PHONE_DISPLAY, STORE_PHONE_TEL, whatsappUrl } from '@/lib/storeContact'
 import { contactService } from '@/services/contactService'
 import { useToast } from '@/context/useToastContext'
@@ -164,6 +165,8 @@ export default function ContactPage() {
                                     </Surface>
                                 )
                             })}
+
+                            <SocialLinks className="pt-1" />
 
                             <div className="rounded-2xl bg-[#fff4ef] border border-primary/10 p-5">
                                 <div className="flex items-center gap-2 text-primary mb-2">

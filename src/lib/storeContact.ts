@@ -1,7 +1,7 @@
 /** Coordonnées boutique (CTA WhatsApp / appel). */
-export const STORE_PHONE_DISPLAY = '(+225) 07 58 08 58 54'
-export const STORE_PHONE_TEL = '+2250758085854'
-export const STORE_WHATSAPP = '2250758085854'
+export const STORE_PHONE_DISPLAY = '(+225) 05 03 033 689'
+export const STORE_PHONE_TEL = '+2250503033689'
+export const STORE_WHATSAPP = '2250503033689'
 
 /**
  * Lien WhatsApp prérempli.
