@@ -111,7 +111,7 @@ export default function HomePage() {
                             key={categoryId || index}
                             title={categoryLabel}
                             products={group.produits || []}
-                            href={categoryId ? `/shop?category=${categoryId}` : '/shop'}
+                            href={categoryId ? `/shop?siteCategory=${categoryId}` : '/shop'}
                         />
                     )
                 })}

@@ -4,26 +4,30 @@ type PlaceholderVariant = 'hero' | 'banner'
 
 interface AdPlaceholderProps {
     variant?: PlaceholderVariant
+    /** Format carte pour une colonne : coins arrondis, sans décor. */
+    compact?: boolean
 }
 
 /**
  * Encart réservé quand aucune pub n'est assignée à l'emplacement.
  */
-export default function AdPlaceholder({ variant = 'banner' }: AdPlaceholderProps) {
+export default function AdPlaceholder({ variant = 'banner', compact = false }: AdPlaceholderProps) {
     const isHero = variant === 'hero'
 
     return (
         <div
-            className={`relative overflow-hidden border-2 border-dashed border-primary/35 bg-gradient-to-br from-orange-50 via-white to-slate-100 ${
+            className={`relative overflow-hidden border-2 border-dashed border-primary/35 bg-gradient-to-br from-orange-50 via-white to-slate-100 ${compact ? 'rounded-2xl' : ''} ${
                 isHero ? 'min-h-[280px] md:min-h-[420px]' : 'min-h-[160px] md:min-h-[200px]'
             }`}
             role="img"
             aria-label="Espace publicitaire disponible"
         >
-            <div className="pointer-events-none absolute inset-0 opacity-[0.12]">
-                <div className="absolute -left-10 top-6 h-40 w-40 rounded-full bg-primary" />
-                <div className="absolute right-8 -bottom-10 h-48 w-48 rounded-full bg-secondary" />
-            </div>
+            {!compact && (
+                <div className="pointer-events-none absolute inset-0 opacity-[0.12]">
+                    <div className="absolute -left-10 top-6 h-40 w-40 rounded-full bg-primary" />
+                    <div className="absolute right-8 -bottom-10 h-48 w-48 rounded-full bg-secondary" />
+                </div>
+            )}
             <div
                 className={`container relative flex ${isHero ? 'min-h-[280px] md:min-h-[420px]' : 'min-h-[160px] md:min-h-[200px]'} items-center justify-center py-8`}
             >

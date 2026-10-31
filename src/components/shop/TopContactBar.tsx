@@ -1,16 +1,20 @@
+'use client'
+
 import IconifyIcon from '@/components/wrappers/IconifyIcon'
 import SocialLinks from '@/components/shop/SocialLinks'
+import { useStoreSettings } from '@/context/useStoreSettingsContext'
 import { STORE_PHONE_DISPLAY, STORE_PHONE_TEL, whatsappUrl } from '@/lib/storeContact'
 
 /**
  * Bandeau contact discret au-dessus du header.
  */
 export default function TopContactBar() {
+    const { tagline } = useStoreSettings()
     return (
         <div className="bg-secondary text-white/80 text-xs font-dm">
             <div className="container flex items-center justify-between gap-3 py-2">
                 <p className="hidden sm:block truncate">
-                    Électroménager & high-tech · Prix en FCFA
+                    {tagline} · Prix en FCFA
                 </p>
                 <p className="sm:hidden truncate">Electro Store.ci</p>
                 <div className="flex items-center gap-3 shrink-0">

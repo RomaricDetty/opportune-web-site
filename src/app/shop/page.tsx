@@ -1,6 +1,7 @@
 'use client'
 
 import { Suspense, useEffect, useState } from 'react'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import ShopLayout from '@/components/shop/ShopLayout'
 import ShopProductCard from '@/components/shop/ShopProductCard'
@@ -11,8 +12,9 @@ import Breadcrumb from '@/components/shop/Breadcrumb'
 import EmptyState from '@/components/ui/EmptyState'
 import IconifyIcon from '@/components/wrappers/IconifyIcon'
 import { cn } from '@/lib/cn'
+import { useShopCategory } from '@/hooks/useShopCategory'
 import { articleService } from '@/services/articleService'
-import { siteCategoryService } from '@/services/siteCategoryService'
+import { siteCategoryService, type SiteCategory } from '@/services/siteCategoryService'
 import type { Article } from '@/types/articles'
 
 const PAGE_SIZE = 12
@@ -37,7 +39,7 @@ function ShopContent() {
 
     const [products, setProducts] = useState<Article[]>([])
     const [loading, setLoading] = useState(true)
-    const [titleLabel, setTitleLabel] = useState('Boutique')
+    const [loadedRayon, setLoadedRayon] = useState<SiteCategory | null>(null)
     const [total, setTotal] = useState(0)
     const [totalPages, setTotalPages] = useState(1)
     const [view, setView] = useState<ShopView>('grid')
@@ -89,20 +91,32 @@ function ShopContent() {
         }
     }, [q, category, siteCategory, marque, minPrice, maxPrice, inStock, sort, page, router])
 
+    // Position dans le catalogue : l'URL donne le rayon, ou la catégorie dont on déduit le rayon.
+    const currentCategory = useShopCategory(category)
+    const rayonId = siteCategory || currentCategory?.siteCategory?.id || ''
+
     useEffect(() => {
-        if (q) {
-            setTitleLabel(`Recherche : ${q}`)
-            return
-        }
-        if (!siteCategory) {
-            setTitleLabel(category ? 'Catégorie' : 'Boutique')
-            return
-        }
+        if (!rayonId) return
+        let cancelled = false
         siteCategoryService
-            .getById(siteCategory)
-            .then((cat) => setTitleLabel(cat?.libelle || 'Catégorie'))
-            .catch(() => setTitleLabel('Catégorie'))
-    }, [q, category, siteCategory])
+            .getById(rayonId)
+            .then((rayon) => {
+                if (!cancelled) setLoadedRayon(rayon)
+            })
+            .catch(() => {
+                if (!cancelled) setLoadedRayon(null)
+            })
+        return () => {
+            cancelled = true
+        }
+    }, [rayonId])
+
+    const rayon = loadedRayon?.id === rayonId ? loadedRayon : null
+    const rayonCategories = rayon?.categories ?? []
+    const locationLoading = currentCategory === undefined || (!category && !!rayonId && !rayon)
+
+    let titleLabel = currentCategory?.libelle || rayon?.libelle || 'Boutique'
+    if (q) titleLabel = `Recherche : ${q}`
 
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -123,14 +137,31 @@ function ShopContent() {
     const crumbs = [
         { label: 'Accueil', href: '/' },
         { label: 'Boutique', href: '/shop' },
-        ...(titleLabel !== 'Boutique' ? [{ label: titleLabel }] : []),
+        ...(q
+            ? [{ label: titleLabel }]
+            : [
+                  ...(rayon ? [{ label: rayon.libelle, href: `/shop?siteCategory=${rayon.id}` }] : []),
+                  ...(currentCategory ? [{ label: currentCategory.libelle }] : []),
+              ]),
     ]
+
+    const chipClass = (active: boolean) =>
+        cn(
+            'shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors',
+            active
+                ? 'border-primary bg-primary text-white'
+                : 'border-gray-200 bg-white text-secondary hover:border-primary hover:text-primary',
+        )
 
     return (
         <div className="px-4 sm:px-6 lg:px-8 py-6 md:py-8 font-dm max-w-[1400px]">
             <Breadcrumb items={crumbs} />
             <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
-                <h1 className="text-2xl md:text-3xl font-bold text-secondary">{titleLabel}</h1>
+                {locationLoading && !q ? (
+                    <div className="h-9 w-56 rounded bg-gray-100 animate-pulse" aria-hidden />
+                ) : (
+                    <h1 className="text-2xl md:text-3xl font-bold text-secondary">{titleLabel}</h1>
+                )}
                 <div className="flex items-center gap-3">
                     {!loading && total > 0 && (
                         <p className="text-sm text-muted">{total} produit{total > 1 ? 's' : ''}</p>
@@ -167,6 +198,27 @@ function ShopContent() {
                     </div>
                 </div>
             </div>
+
+            {!q && rayon && rayonCategories.length > 0 && (
+                <nav
+                    aria-label={`Catégories du rayon ${rayon.libelle}`}
+                    className="mb-4 flex gap-2 overflow-x-auto pb-1"
+                >
+                    <Link href={`/shop?siteCategory=${rayon.id}`} className={chipClass(!category)}>
+                        Tout voir
+                    </Link>
+                    {rayonCategories.map((item) => (
+                        <Link
+                            key={item.id}
+                            href={`/shop?category=${item.id}`}
+                            aria-current={item.id === category ? 'page' : undefined}
+                            className={chipClass(item.id === category)}
+                        >
+                            {item.libelle}
+                        </Link>
+                    ))}
+                </nav>
+            )}
 
             <ShopFilters />
 

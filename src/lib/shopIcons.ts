@@ -35,6 +35,7 @@ const LUCIDE_TO_SOLAR_BOLD: Record<string, string> = {
     'log-out': 'logout-2-bold',
     mail: 'letter-bold',
     'map-pin': 'map-point-bold',
+    megaphone: 'sale-bold',
     menu: 'hamburger-menu-bold',
     'message-circle': 'chat-round-bold',
     minus: 'minus-circle-bold',

@@ -19,6 +19,9 @@ import { formatXof, priceAfterDiscount } from '@/lib/formatPrice'
 import { STORE_PHONE_TEL, whatsappUrl } from '@/lib/storeContact'
 import type { Article } from '@/types/articles'
 import ProductGallery from '@/components/shop/ProductGallery'
+import AdSlot from '@/components/shop/AdSlot'
+import { adsForSlot, type ShopPublicite } from '@/lib/adSlots'
+import { fetchPublicites } from '@/services/publiciteService'
 import ProductGridSkeleton from '@/components/shop/ProductGridSkeleton'
 import Reveal from '@/components/ui/Reveal'
 import EmptyState from '@/components/ui/EmptyState'
@@ -59,6 +62,7 @@ export default function ProductDetailPage() {
     const [loading, setLoading] = useState(true)
     const [qty, setQty] = useState(1)
     const [mounted, setMounted] = useState(false)
+    const [ads, setAds] = useState<ShopPublicite[] | null>(null)
     const stickyCtaRef = useRef<HTMLDivElement>(null)
     const { addToCart } = useCartContext()
     const { isFavorite, toggleFavorite } = useWishlistContext()
@@ -67,6 +71,9 @@ export default function ProductDetailPage() {
 
     useEffect(() => {
         setMounted(true)
+        fetchPublicites()
+            .then(setAds)
+            .catch(() => setAds([]))
     }, [])
 
     useEffect(() => {
@@ -188,6 +195,14 @@ export default function ProductDetailPage() {
                     items={[
                         { label: 'Accueil', href: '/' },
                         { label: 'Boutique', href: '/shop' },
+                        ...(product.category?.siteCategory
+                            ? [
+                                  {
+                                      label: product.category.siteCategory.libelle,
+                                      href: `/shop?siteCategory=${product.category.siteCategory.id}`,
+                                  },
+                              ]
+                            : []),
                         ...(product.category?.libelle
                             ? [
                                   {
@@ -317,6 +332,16 @@ export default function ProductDetailPage() {
                         <p className="mt-5 text-xs text-muted leading-relaxed">
                             Livraison Abidjan sous 24–72 h · Retrait magasin possible
                         </p>
+
+                        {ads && (
+                            <AdSlot
+                                embedded
+                                // Pas de pub pour le produit déjà affiché.
+                                ads={adsForSlot(ads, 'product_side').filter(
+                                    (ad) => String(ad.idProduit) !== String(product.id),
+                                )}
+                            />
+                        )}
                     </div>
                 </div>
 

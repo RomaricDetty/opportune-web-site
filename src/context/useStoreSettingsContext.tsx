@@ -14,10 +14,12 @@ import type { SocialLinksMap } from '@/lib/socialNetworks'
 const DEFAULT_LOGO = '/brand/logo-electro.png'
 const DEFAULT_NAME = 'Electro Store'
 const DEFAULT_SOCIALS: SocialLinksMap = {}
+const DEFAULT_TAGLINE = 'Électroménager & high-tech'
 
 type StoreSettings = {
     logoUrl: string
     siteName: string
+    tagline: string
     socials: SocialLinksMap
     loading: boolean
 }
@@ -30,6 +32,7 @@ const StoreSettingsContext = createContext<StoreSettings | undefined>(undefined)
 export function StoreSettingsProvider({ children }: { children: ReactNode }) {
     const [logoUrl, setLogoUrl] = useState(DEFAULT_LOGO)
     const [siteName, setSiteName] = useState(DEFAULT_NAME)
+    const [tagline, setTagline] = useState(DEFAULT_TAGLINE)
     const [socials, setSocials] = useState<SocialLinksMap>(DEFAULT_SOCIALS)
     const [loading, setLoading] = useState(true)
 
@@ -42,6 +45,7 @@ export function StoreSettingsProvider({ children }: { children: ReactNode }) {
                 const data = res.data?.data
                 setLogoUrl(data?.logo || DEFAULT_LOGO)
                 setSiteName(data?.siteName || DEFAULT_NAME)
+                setTagline(data?.tagline || DEFAULT_TAGLINE)
                 setSocials(data?.socials || DEFAULT_SOCIALS)
             })
             .catch(() => {
@@ -56,8 +60,8 @@ export function StoreSettingsProvider({ children }: { children: ReactNode }) {
     }, [])
 
     const value = useMemo(
-        () => ({ logoUrl, siteName, socials, loading }),
-        [logoUrl, siteName, socials, loading],
+        () => ({ logoUrl, siteName, tagline, socials, loading }),
+        [logoUrl, siteName, tagline, socials, loading],
     )
 
     return (
@@ -76,6 +80,7 @@ export function useStoreSettings() {
         return {
             logoUrl: DEFAULT_LOGO,
             siteName: DEFAULT_NAME,
+            tagline: DEFAULT_TAGLINE,
             socials: DEFAULT_SOCIALS,
             loading: false,
         }

@@ -1,25 +1,41 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { adHref, getAdImage, type ShopPublicite } from '@/lib/adSlots'
 import { optimizeProductImage, PRODUCT_IMAGE_PLACEHOLDER } from '@/lib/productImage'
 import AdPlaceholder from './AdPlaceholder'
 
+/** Durée d'affichage de chaque pub quand plusieurs partagent un emplacement. */
+const ROTATION_MS = 6000
+
 interface AdSlotProps {
     ads: ShopPublicite[]
+    /** Encart intégré à une colonne, sans la marge de section pleine largeur. */
+    embedded?: boolean
 }
 
 /**
- * Encart pub milieu / bas : visuel ou placeholder si aucune pub.
+ * Encart pub (accueil, fiche produit) : visuel ou placeholder si aucune pub.
  */
-export default function AdSlot({ ads }: AdSlotProps) {
-    const ad = ads[0]
+export default function AdSlot({ ads, embedded = false }: AdSlotProps) {
+    const [index, setIndex] = useState(0)
+
+    useEffect(() => {
+        setIndex(0)
+        if (ads.length <= 1) return
+        const timer = setInterval(() => setIndex((prev) => (prev + 1) % ads.length), ROTATION_MS)
+        return () => clearInterval(timer)
+    }, [ads.length])
+
+    const ad = ads[index] ?? ads[0]
+    const sectionClass = embedded ? 'mt-6' : 'container py-6 md:py-8'
     const image = ad ? getAdImage(ad.images) : null
 
     if (!ad || !image) {
         return (
-            <section className="container py-6 md:py-8">
-                <AdPlaceholder variant="banner" />
+            <section className={sectionClass}>
+                <AdPlaceholder variant="banner" compact={embedded} />
             </section>
         )
     }
@@ -28,7 +44,7 @@ export default function AdSlot({ ads }: AdSlotProps) {
     const src = optimizeProductImage(image, 1100) || PRODUCT_IMAGE_PLACEHOLDER
 
     return (
-        <section className="container py-6 md:py-8">
+        <section className={sectionClass}>
             <Link
                 href={href}
                 className="group relative block overflow-hidden rounded-2xl min-h-[160px] md:min-h-[200px]"

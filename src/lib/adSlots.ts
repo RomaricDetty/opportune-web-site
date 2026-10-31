@@ -1,4 +1,4 @@
-export type AdSlotKey = 'hero' | 'home_mid' | 'home_bottom'
+export type AdSlotKey = 'hero' | 'home_mid' | 'home_bottom' | 'product_side'
 
 export interface ShopPublicite {
     id: string

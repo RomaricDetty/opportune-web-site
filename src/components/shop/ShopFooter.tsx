@@ -1,9 +1,12 @@
+'use client'
+
 import Link from 'next/link'
 import IconifyIcon from '@/components/wrappers/IconifyIcon'
 import BrandLogo from '@/components/shop/BrandLogo'
 import Button from '@/components/ui/Button'
 import Reveal from '@/components/ui/Reveal'
 import SocialLinks from '@/components/shop/SocialLinks'
+import { useStoreSettings } from '@/context/useStoreSettingsContext'
 import { STORE_PHONE_DISPLAY, STORE_PHONE_TEL, whatsappUrl } from '@/lib/storeContact'
 
 const links = [
@@ -17,6 +20,7 @@ const links = [
  * Pied de page boutique — marque mise en avant, contact actionnable.
  */
 export default function ShopFooter() {
+    const { tagline } = useStoreSettings()
     return (
         <footer className="mt-16 font-dm border-t border-gray-200/80 bg-[#fafafa]">
             <Reveal>
@@ -25,7 +29,7 @@ export default function ShopFooter() {
                     <div className="max-w-md">
                         <BrandLogo height={56} />
                         <p className="mt-4 text-sm text-muted leading-relaxed">
-                            Électroménager & high-tech. Prix en FCFA, livraison en Côte d&apos;Ivoire.
+                            {tagline}. Prix en FCFA, livraison en Côte d&apos;Ivoire.
                         </p>
                     </div>
                     <div className="flex flex-wrap gap-2.5">

@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 import IconifyIcon from '@/components/wrappers/IconifyIcon'
+import { useShopCategory } from '@/hooks/useShopCategory'
 import { siteCategoryService, type SiteCategory } from '@/services/siteCategoryService'
 
 /**
@@ -22,6 +23,7 @@ function iconForSiteCategory(libelle: string): string {
     if (l.includes('electro') || l.includes('ménager') || l.includes('menager') || l.includes('froid') || l.includes('cuisine')) {
         return 'lucide:refrigerator'
     }
+    if (l.includes('supermarch')) return 'lucide:shopping-cart'
     if (l.includes('access')) return 'lucide:headphones'
     if (l.includes('ordi') || l.includes('informatique') || l.includes('pc')) return 'lucide:laptop'
     return 'lucide:package'
@@ -126,7 +128,10 @@ export default function CategoryRail() {
     const [loading, setLoading] = useState(true)
     const [drawerOpen, setDrawerOpen] = useState(false)
     const [mounted, setMounted] = useState(false)
-    const activeId = searchParams.get('siteCategory') || ''
+    const categoryId = searchParams.get('category') || ''
+    const currentCategory = useShopCategory(categoryId)
+    // Sur une catégorie, le rayon actif est son rayon parent.
+    const activeId = searchParams.get('siteCategory') || currentCategory?.siteCategory?.id || ''
 
     useEffect(() => {
         setMounted(true)
@@ -166,7 +171,8 @@ export default function CategoryRail() {
 
     if (!shouldShowOnPath(pathname)) return null
 
-    const isAllActive = pathname === '/shop' && !activeId && !searchParams.get('q')
+    const isAllActive =
+        pathname === '/shop' && !activeId && !categoryId && !searchParams.get('q')
     const activeLabel =
         categories.find((c) => c.id === activeId)?.libelle ||
         (isAllActive ? 'Tous les produits' : 'Catégories')

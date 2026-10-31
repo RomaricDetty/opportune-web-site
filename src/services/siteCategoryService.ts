@@ -5,6 +5,7 @@ export interface SiteCategory {
     libelle: string
     description?: string | null
     isActive?: boolean
+    categories?: { id: string; libelle: string }[]
 }
 
 /**

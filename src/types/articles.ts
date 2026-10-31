@@ -27,7 +27,8 @@ export interface Article {
 
 export interface Category{
   id : string,
-  libelle : string
+  libelle : string,
+  siteCategory?: { id: string, libelle: string } | null
 }
 
 export interface Marque {
